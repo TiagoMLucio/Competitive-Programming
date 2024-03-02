@@ -1,0 +1,1 @@
+{"name":"Local: B","url":"/home/tiago/Documents/cp/CodeChef/Contests/123/B.cpp","tests":[{"id":1709131163104,"input":"2\n3\n4","output":"4\n6"},{"id":1709131753961,"input":"1\n7","output":"16"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/tiago/Documents/cp/CodeChef/Contests/123/B.cpp","group":"local","local":true}
