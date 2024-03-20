@@ -7,10 +7,6 @@ using ld = long double;
 using str = string;
 
 #define sz(x) static_cast<int>((x).size())
-#define MAXX 1073741823
-#define MAX (1 << 20)
-#define INF 0x3f3f3f3f
-#define MODN 1000000007
 #define endl '\n'
 #define int ll
 
@@ -21,15 +17,25 @@ using ii = pair<int, int>;
 
 using iii = tuple<int, int, int>;
 using iiii = tuple<int, int, int, int>;
+#define mt make_tuple
 
-using vi = vector<int>;
-using vii = vector<ii>;
-using viii = vector<iii>;
-using viiii = vector<iiii>;
+template<class T> using V = vector<T>;
+using vi = V<int>;
+using vii = V<ii>;
+using viii = V<iii>;
+using viiii = V<iiii>;
+using vb = V<bool>;
+using vs = V<str>;
+using vd = V<double>;
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
+#define sor(x) sort(all(x))
 #define allr(x) (x).rbegin(), (x).rend()
+
+const int MODN = static_cast<int>(1e9+7);
+const int INF = 0x3f3f3f3f;
+const int dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 
 inline namespace IO {
 #define SFINAE(x, ...)                                                         \
@@ -41,28 +47,14 @@ SFINAE(DefaultO, decltype(std::cout << std::declval<T &>()));
 SFINAE(IsTuple, typename std::tuple_size<T>::type);
 SFINAE(Iterable, decltype(std::begin(std::declval<T>())));
 
-template<typename T, typename = std::enable_if_t<Iterable<T>::value && !DefaultI<T>::value>>
-std::istream& operator>>(std::istream& is, T& container) {
-    for(auto& item : container)
-        is >> item; 
-    return is;
-}
-
-template<typename T1, typename T2>
-std::istream& operator>>(std::istream& is, std::pair<T1, T2>& p) {
-    return is >> p.first >> p.second;
-}
-
-template<typename... Ts>
-std::istream& operator>>(std::istream& is, std::tuple<Ts...>& tup) {
-    std::apply([&is](auto&... args) { ((is >> args), ...); }, tup);
-    return is;
-}
-
 template <auto &is> struct Reader {
     template <class T> void Impl(T &t) {
-        if constexpr (DefaultI<T>::value || Iterable<T>::value || IsTuple<T>::value) is >> t;
-        else static_assert(sizeof(T) == 0, "No matching type for read");
+        if constexpr (DefaultI<T>::value) is >> t;
+        else if constexpr (Iterable<T>::value) {
+            for (auto &x : t) Impl(x);
+        } else if constexpr (IsTuple<T>::value) {
+            std::apply([this](auto &...args) { (Impl(args), ...); }, t);
+        } else static_assert(IsTuple<T>::value, "No matching type for read");
     }
     template <class... Ts> void read(Ts &...ts) { ((Impl(ts)), ...); }
 };
@@ -71,28 +63,6 @@ template <class... Ts> void re(Ts &...ts) { Reader<cin>{}.read(ts...); }
 #define def(t, ...)                                                        \
     t __VA_ARGS__;                                                                    \
     re(__VA_ARGS__);
- 
-template<typename T, typename = std::enable_if_t<Iterable<T>::value && !DefaultO<T>::value>>
-std::ostream& operator<<(std::ostream& os, const T& container) {
-    int i = 0;
-    for (const auto &item : container)
-        os << (i++ ? " " : "") << item;
-    return os;
-}
-
-template<typename T1, typename T2>
-std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
-    return os << p.first << " " << p.second;
-}
-
-template<typename... Ts>
-std::ostream& operator<<(std::ostream& os, const std::tuple<Ts...>& tup) {
-    std::apply([&os](const auto&... args) {
-        size_t n = 0;
-        ((os << (n++ ? " " : "") << args), ...);
-    }, tup);
-    return os;
-}
 
 template <auto &os, bool debug, bool print_nd> struct Writer {
     string comma() const { return debug ? "," : ""; }
@@ -164,7 +134,7 @@ void err_prefix(str func, int line, string args) {
 #define dbgn(...) err_prefix(__FUNCTION__, __LINE__, #__VA_ARGS__), errn(__VA_ARGS__)
 #else
 #define dbg(...)
-#define dbgn(args...)
+#define dbgn(...)
 #endif
  
 const auto beg_time = std::chrono::high_resolution_clock::now();
@@ -197,24 +167,62 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int,n);
+    def(int, n, k, m);
+    def(str, s);
     
-    int x {0}, y {0}, z {0};
+    map<char, int> freqs;
 
-    while(n--) {
-        def(int, xi, yi, zi);
-        x+= xi; y += yi; z+= zi;
+    for(auto c: s) freqs[c]++;
+
+    dbg(freqs);
+
+    for (char c = 'a'; c < 'a' + k; c++)
+        if (freqs[c] < n) {
+            ps("NO");
+            for (int i = 0; i < n; i++) cout << c;
+            cout << endl;
+            return;
+        }
+    
+    int count = 0;
+
+    set<char> chars;
+
+    V<char> lastc(n);
+
+    for (int i = 0; i < m; i++) {
+        if (s.at(i) < 'a' + k) {
+            chars.insert(s.at(i));
+            if (count < n)
+                lastc.at(count) = s.at(i);
+            if (sz(chars) == k) {
+                count++;
+                chars.clear();
+            }
+        }
     }
 
-    ps (x == 0 && y == 0 && z == 0 ? "YES" : "NO");
+    if (count >= n) ps("YES");
+    else {
+        ps("NO");
+        for(int i = 0; i < count; i++) cout << lastc.at(i);
+        char missing;
+        for(char c = 'a'; c < 'a' + k; c++) 
+            if(chars.find(c) == chars.end())
+                missing = c;
+        for(int i = count; i < n; i++) cout << missing;
+        cout << endl;
+    }
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
-    while (T--) solve();
+    def(int, T);
+    while (T--) {
+        solve();
+    }
 
     // dbg(time_elapsed());
 }
