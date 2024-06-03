@@ -42,15 +42,17 @@ inline namespace IO {
     template <class, class = void> struct x : std::false_type {};              \
     template <class T> struct x<T, std::void_t<__VA_ARGS__>> : std::true_type {}
  
-SFINAE(DefaultI, decltype(std::cin >> std::declval<T &>()));
-SFINAE(DefaultO, decltype(std::cout << std::declval<T &>()));
+SFINAE(IsDefaultI, decltype(std::cin >> std::declval<T &>()));
+SFINAE(IsDefaultO, decltype(std::cout << std::declval<T &>()));
 SFINAE(IsTuple, typename std::tuple_size<T>::type);
-SFINAE(Iterable, decltype(std::begin(std::declval<T>())));
+SFINAE(IsIterable, decltype(std::begin(std::declval<T>())));
+SFINAE(IsQueue, decltype(std::declval<T>().push(std::declval<typename T::value_type>()), std::declval<T>().pop(), std::declval<T>().front()));
+SFINAE(IsStack, decltype(std::declval<T>().push(std::declval<typename T::value_type>()), std::declval<T>().pop(), std::declval<T>().top()));
 
 template <auto &is> struct Reader {
     template <class T> void Impl(T &t) {
-        if constexpr (DefaultI<T>::value) is >> t;
-        else if constexpr (Iterable<T>::value) {
+        if constexpr (IsDefaultI<T>::value) is >> t;
+        else if constexpr (IsIterable<T>::value) {
             for (auto &x : t) Impl(x);
         } else if constexpr (IsTuple<T>::value) {
             std::apply([this](auto &...args) { (Impl(args), ...); }, t);
@@ -67,17 +69,26 @@ template <class... Ts> void re(Ts &...ts) { Reader<cin>{}.read(ts...); }
 template <auto &os, bool debug, bool print_nd> struct Writer {
     string comma() const { return debug ? "," : ""; }
     template <class T> constexpr char Space(const T &) const {
-        return print_nd && (Iterable<T>::value or IsTuple<T>::value) ? '\n' : ' ';
+        return print_nd && (IsIterable<T>::value or IsTuple<T>::value) ? '\n' : ' ';
     }
     template <class T> void Impl(T const &t) const {
-        if constexpr (DefaultO<T>::value) os << t;
-        else if constexpr (Iterable<T>::value) {
+        if constexpr (IsDefaultO<T>::value) os << t;
+        else if constexpr (IsIterable<T>::value) {
             if (debug) os << '{';
             int i = 0;
             for (auto &&x : t)
                 ((i++) ? (os << comma() << Space(x), Impl(x)) : Impl(x));
             if (debug) os << '}';
-        } else if constexpr (IsTuple<T>::value) {
+        } else if constexpr (IsQueue<T>::value || IsStack<T>::value) {
+            T tmp = t;
+            if (debug) os << '{';
+            while (!tmp.empty()) {
+                Impl(tmp.front());
+                tmp.pop();
+                if (!tmp.empty()) os << comma() << Space(tmp.front());
+            }
+            if (debug) os << '}';
+        }else if constexpr (IsTuple<T>::value) {
             if (debug) os << '(';
             std::apply(
                 [this](auto const &...args) {
@@ -157,7 +168,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +176,72 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(str, s1, s2);
+    def(int, t, q);
 
-    ll dist;
+    int n = sz(s1);
+    
+    set<int> diff;
+    queue<ii> blocked;
 
-    vector<ll> a(n);
+    for(int i = 0; i < n; i++)
+        if(s1.at(i) != s2.at(i))
+            diff.insert(i);
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
+    for(int i = 0; i < q; i++) {
+        def(int, type);
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+        if(!blocked.empty() && i >= blocked.front().f + t) {
+            diff.insert(blocked.front().s);
+            blocked.pop();
         }
-    }
 
-    ps(d / 2.);
-}
+        switch (type) {
+            case 1: {
+                def(int, pos); pos--;
+                auto it = diff.find(pos);
+                if(it != diff.end()) {
+                    diff.erase(it); 
+                    blocked.push({i, pos});
+                }
+                break;
+            }
+            case 2: {
+                def(int, strIdx1, pos1, strIdx2, pos2); pos1--; pos2--;
+                str *str1 = strIdx1 == 1 ? &s1 : &s2;
+                str *str2 = strIdx2 == 1 ? &s1 : &s2;
+
+                swap(str1->at(pos1), str2->at(pos2));
+
+                auto it1 = diff.find(pos1);
+                auto it2 = diff.find(pos2);
+
+                if (s1.at(pos1) != s2.at(pos1)) diff.insert(pos1);
+                else if (it1 != diff.end()) diff.erase(it1);
+                if (s1.at(pos2) != s2.at(pos2)) diff.insert(pos2);
+                else if (it2 != diff.end()) diff.erase(it2);
+                break;
+            }
+            case 3: {
+                ps(diff.empty() ? "YES" : "NO");
+                break;
+            }
+        }     
+
+        dbg(s1, s2, diff, blocked);
+    }
+    
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

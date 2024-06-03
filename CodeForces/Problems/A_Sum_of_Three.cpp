@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,42 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    def(int, n);
+    
+    if (n < 10 && n != 7 && n != 8) {
+        ps("NO");
+        return;
     }
 
-    sort(a.begin(), a.end());
+    ps("YES");
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    if(n == 7) 
+        ps(1, 2, 4);
+    else if (n == 8)
+        ps(1, 2, 5);
+    else if (n == 10)
+        ps(1, 4, 5);
+    else {
+        int x = n % 3 == 0 ? 1 : 2, y = 4, z;
 
-    for (int i = 0; i < n; i++)
-    {
+        if (n % 3 == 2) z = 5 + (n - 11);
+        else if (n % 3 == 0 ) z = 7 + (n - 12);
+        else z = 7 + (n - 13);
 
-        dist = max(dist, a[i] - a[i - 1]);
+        ps(x, y, z);
     }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
-    }
-
-    ps(d / 2.);
-}
+    
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -33,7 +33,7 @@ using vd = V<double>;
 #define sor(x) sort(all(x))
 #define allr(x) (x).rbegin(), (x).rend()
 
-const int MODN = static_cast<int>(1e9+7);
+const int MODN = static_cast<int>(998244353);
 const int INF = 0x3f3f3f3f;
 const int dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 
@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,70 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
+int mult(int x, int y) {
+    return ((x % MODN) * (y % MODN)) % MODN;
 }
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+ll powmod(ll a, ll b, ll p){
+    a %= p;
+    if (a == 0) return 0;
+    ll product = 1;
+    while(b > 0){
+        if (b&1){    // you can also use b % 2 == 1
+            product *= a;
+            product %= p;
+            --b;
         }
+        a *= a;
+        a %= p;
+        b /= 2;    // you can also use b >> 1
+    }
+    return product;
+}
+
+vi fact(312345, 1);
+
+void calcFacts() {
+    for(int i = 2; i <= 312345; i++)
+        fact[i] = mult(fact[i - 1], i);
+}
+
+ll inv(ll a, ll p){
+    return powmod(a, p-2, p);
+}
+
+ll nCk(ll n, ll k, ll p){
+    return ((fact[n] * inv(fact[k], p) % p) * inv(fact[n-k], p)) % p;
+}
+
+void solve()
+{
+    def(int, n);
+    vi w(n);
+    re(w);
+
+    
+    int res {1};
+
+    for(int i = 0; i < n; i += 3) {
+        vi triangle {w.at(i), w.at(i + 1), w.at(i + 2)};
+        sor(triangle);
+        if (triangle.at(0) == triangle.at(1) && triangle.at(1) == triangle.at(2)) res = mult(res, 3);
+        else if (triangle.at(0) == triangle.at(1)) res = mult(res, 2);
     }
 
-    ps(d / 2.);
-}
+    ps(mult(res, nCk(n/3, n/6, MODN)));
 }
 
 signed main()
 {
-    setIO();	
+    setIO();
 
-    int T{1};
+    calcFacts();	
+
+    int T {1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

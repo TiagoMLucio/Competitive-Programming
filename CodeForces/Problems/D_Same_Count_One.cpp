@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,68 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
+    def(int, n, m);
+    V<vi> a(n, vi(m));
     re(a);
-    sor(a);
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    int cnt {0};
+    for(auto ai: a) for(auto aij: ai) cnt += aij;
+    
+    if (cnt % n != 0) {
+        ps(-1);
+        return;
+    }
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    cnt /= n;
+
+    V<tuple<int, int, vi>> more;
+    V<tuple<int, int, vi>> less;
+
+    for(int i {0}; i < n; i++) {
+        int sum {0};
+        for(auto aij: a.at(i)) sum += aij;
+        if (sum > cnt) more.pb({i, sum - cnt, a.at(i)});
+        else if (sum < cnt) less.pb({i, sum - cnt, a.at(i)});
+    }
+
+    int moreIdx = 0, lessIdx = 0;
+
+    viii res;
+
+    dbg(more, less);
+
+    while(moreIdx < sz(more) && lessIdx < sz(less)) {
+        for(int i = 0; i < m; i++) {
+            if (get<2>(more.at(moreIdx)).at(i) == 1 && get<2>(less.at(lessIdx)).at(i) == 0) {
+                get<2>(more.at(moreIdx)).at(i) = 0;
+                get<2>(less.at(lessIdx)).at(i) = 1;
+                get<1>(more.at(moreIdx))--;
+                get<1>(less.at(lessIdx))++;
+
+                res.pb({get<0>(more.at(moreIdx)) + 1, get<0>(less.at(lessIdx)) + 1, i + 1});
+                
+                if(get<1>(more.at(moreIdx)) == 0 || get<1>(less.at(lessIdx)) == 0) {
+                    if (get<1>(less.at(lessIdx)) == 0) lessIdx++;
+                    if (get<1>(more.at(moreIdx)) == 0) moreIdx++;
+                    break;
+                }
+            }
         }
     }
 
-    ps(d / 2.);
-}
+    ps(sz(res));
+    ps(res);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

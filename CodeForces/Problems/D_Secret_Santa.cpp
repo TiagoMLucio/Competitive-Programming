@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,80 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n);
+    vi v(n);
+    re(v);
 
-    ll dist;
+    dbg(v);
+    
+    V<vi> cnt(n + 1, vi());
+    for(int i = 0; i < n; i++) cnt.at(v.at(i)).pb(i + 1);
 
-    vector<ll> a(n);
+    dbg(cnt);
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    set<int> missing, extra;
+    vi receive(n);
+
+    dbg(cnt);
+
+    for(int i = 1; i <= n; i++) {
+        if (sz(cnt.at(i)) == 0)
+            missing.insert(i);
     }
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
+    for(int i = 1; i <= n; i++) {
+        int m = sz(cnt.at(i));
+        int cur = 0; 
+        for(int j = 0; j < m; j++)
+            if(sz(missing) > 1 || missing.find(cnt.at(i).at(j)) == missing.end()) {
+                if (++cur == m) receive.at(i - 1) = cnt.at(i).at(j);
+                else extra.insert(cnt.at(i).at(j));
+            } else receive.at(i - 1) = cnt.at(i).at(j);
     }
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    dbg(missing, extra);
+    dbg(receive);
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+    set<int> remaining;
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
+    for(auto it = missing.begin(); it != missing.end(); ++it) {
+        if(extra.find(*it) == extra.end()) {remaining.insert(*it); continue;}
+        for(auto it2 = extra.begin(); it2 != extra.end(); ++it2)
+            if (*it != *it2) {
+                receive.at(*it - 1) = *it2;
+                extra.erase(it2);
                 break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
+            }
     }
 
-    ps(d / 2.);
-}
+    for(auto it = remaining.begin(); it != remaining.end(); ++it) {
+        auto it2 = extra.begin();
+        receive.at(*it - 1) = *it2;
+        extra.erase(it2);
+    }
+
+    dbg(receive);
+    
+    vi b(n);
+
+    for(int i = 0; i < n; i++)
+        b.at(receive.at(i) - 1) = i + 1;
+    
+    dbg(b);
+
+    ps(n - sz(missing));
+    ps(b);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

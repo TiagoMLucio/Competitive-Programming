@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,95 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+int pow(int a, int b) {
+    int res {1};
+    while(b > 0) {
+        res *= a;
+        b--;
     }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
+    return res;
 }
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+void solve() {
+    def(str, s);
+    
+    int sys = 0;
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
+    if (s.at(0) == 'R') {
+        int i = 0;
+        for(int ii = 1; ii < sz(s); ii++) {
+            if (i && s.at(ii) == 'C') {
+                sys = 1;
                 break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+            } else if (s.at(ii) >= '0' && s.at(ii) <= '9') i = ii;
         }
     }
 
-    ps(d / 2.);
-}
+    if(sys) {
+        str num1, num2;
+        bool afterC = false;
+        for(int i = 1; i < sz(s); i++) {
+            if (afterC) num2 += s.at(i);
+            else {
+                if (s.at(i) == 'C') afterC = true;
+                else num1 += s.at(i);
+            }
+        }
+
+        int n1 {stoi(num1)}, n2 {stoi(num2) - 1};
+
+        int c = log(25 * n2 / 26 + 1) / log(26);
+
+        dbg(n2, c);
+
+        n2 -= 26 * (pow(26, c) - 1) / 25; 
+
+        dbg(26 * (pow(26, c) - 1) / 25, n2);
+
+        str col;
+
+        for(int i = 0; i <= c; i++)
+            col.pb('A');
+
+        int i {0};
+
+        while(n2 > 0) {
+            col.at(i) += (n2 % 26);
+            n2 /= 26;
+            i++;
+        }
+
+        reverse(all(col));
+
+        cout << col << n1 << endl;
+    } else {
+        str col, row;
+
+        for(auto c: s) {
+            if (c >= '0' && c <= '9') row.pb(c);
+            else col.pb(c);
+        }
+
+        int nc {26 * (pow(26, sz(col) - 1) - 1) / 25 + 1};
+
+        int pow26 = 1;
+
+        for(int i = sz(col) - 1; i >= 0; i--) {
+            nc += (col.at(i) - 'A') * pow26;
+            pow26 *= 26;
+        }
+
+        cout << 'R' << row << 'C' << nc << endl;
+    }
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

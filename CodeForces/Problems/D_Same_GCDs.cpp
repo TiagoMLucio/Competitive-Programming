@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,98 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+void generateCombinations(const std::vector<int>& numbers, int start, int k, std::vector<int>& currentCombination, std::vector<std::vector<int>>& result) {
+    dbg(numbers, start, k, currentCombination, result);
+    if (k == 0) {
+        int product {1};
+        for (auto num: currentCombination)
+            product *= num;
+        dbg(product);
+        result.back().push_back(product);
+        return;
     }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
+    for (int i = start; i <= sz(numbers) - k; ++i) {
+        currentCombination.push_back(numbers[i]);
+        generateCombinations(numbers, i + 1, k - 1, currentCombination, result);
+        currentCombination.pop_back();
     }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
+    dbg("end", numbers, start, k, currentCombination, result);
 }
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+std::vector<std::vector<int>> generateProductArrays(const std::vector<int>& numbers) {
+    std::vector<std::vector<int>> arrays;
+    arrays.push_back(numbers); // First array is the numbers themselves
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    dbg(arrays);
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for (size_t k = 2; k <= numbers.size(); ++k) {
+        arrays.push_back(std::vector<int>()); // Add new vector for combinations of size k
+        std::vector<int> currentCombination;
+        generateCombinations(numbers, 0, k, currentCombination, arrays);
+    }
+
+    return arrays;
+}
+
+std::vector<int> primeFactors(int n) {
+    std::vector<int> factors;
+    // Divide by 2 to remove all even factors
+    while (n % 2 == 0) {
+        if (factors.empty() || factors.back() != 2) {
+            factors.push_back(2);
+        }
+        n = n / 2;
+    }
+
+    // n must be odd at this point, so skip one element (Note i = i + 2)
+    for (int i = 3; i * i <= n; i += 2) {
+        // While i divides n, append i and divide n
+        while (n % i == 0) {
+            if (factors.empty() || factors.back() != i) {
+                factors.push_back(i);
+            }
+            n = n / i;
         }
     }
 
-    ps(d / 2.);
+    // If n is a prime number greater than 2
+    if (n > 2) {
+        factors.push_back(n);
+    }
+
+    return factors;
 }
+
+void solve()
+{
+    def(int, a, m);
+
+    int g = gcd(a, m);
+    
+    vi pfs = primeFactors(m / g);
+
+    int res {m / g};
+
+    V<vi> products = generateProductArrays(pfs);
+
+    dbg(g, pfs, products);
+
+    for(int i = 0; i < sz(products); i++) {
+        int sum {0};
+        for(auto num: products.at(i)) sum += m / (g * num);
+        res += sum * (i % 2 == 0 ? -1 : 1);
+    }
+
+    ps(res);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

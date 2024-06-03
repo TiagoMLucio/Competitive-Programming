@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,49 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n);
+    vi v(n);
+    re(v);
+    sor(v);
 
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    if (n == 1) {
+        ps(1);
+        return;
     }
 
-    sort(a.begin(), a.end());
+    int mx {v.at(n - 1)};
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    int x = 0;
+    for(int i {0}; i < n; i++) 
+            x = gcd(x, mx - v.at(i));
 
-    for (int i = 0; i < n; i++)
-    {
+    dbg(x);
 
-        dist = max(dist, a[i] - a[i - 1]);
-    }
+    int res {0};
+    for(int i {0}; i < n; i++)
+        res += (mx - v.at(i)) / x;
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    dbg(res);
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+    int i {1};
+    for(; i < n; i++)
+        if (v.at(n - 1 - i) != mx - i * x)
+            break;
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    res += i;
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
-    }
-
-    ps(d / 2.);
-}
+    ps(res);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,86 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+vector<int> prefix_function(string s) {
+    int n = (int)s.length();
+    vector<int> pi(n);
+    for (int i = 1; i < n; i++) {
+        int j = pi[i-1];
+        while (j > 0 && s[i] != s[j])
+            j = pi[j-1];
+        if (s[i] == s[j])
+            j++;
+        pi[i] = j;
     }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
+    return pi;
 }
 
-namespace Solution2 {
 void solve()
 {
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+    def(str, t);
+    def(int, n);
+    vs s(n);
+    re(s);
+    
+    viii ranges;
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    for(int i = 0; i < n; i++) {
+        vi occurs = prefix_function(s.at(i) + '#' + t);
+        int siSize = sz(s.at(i));
+        for(int j  = 0; j < sz(t); j++)
+            if (occurs.at(siSize + 1 + j) == siSize)
+                ranges.pb({j - siSize + 1, j, i});
+    }
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    sor(ranges);
+
+    dbg(ranges);
+
+    vii res;
+
+    int curR = -1, maxR = -1;
+    ii cur {-1, -1};
+
+    for(auto [l, r, idx]: ranges) {
+        dbg(l, r, idx, curR, maxR, cur);
+        if (l > curR + 1) {
+            if (cur.f != -1) {
+                res.pb(cur);
+                cur = {-1, -1};
+                curR = maxR;
+            } else {
+                ps(-1);
+                return;
+            }
         }
+        if (l <= curR + 1 && r > maxR) {
+            cur = {idx + 1, l + 1};
+            maxR = r;
+        } 
     }
 
-    ps(d / 2.);
-}
+    if (maxR > curR)
+        res.pb(cur);
+
+    dbg(res);
+
+    if (maxR != sz(t) - 1) {
+        ps(-1);
+        return;
+    }
+
+    ps(sz(res));
+    ps(res);
+
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

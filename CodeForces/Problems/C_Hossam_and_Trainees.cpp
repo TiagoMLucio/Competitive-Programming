@@ -1,3 +1,5 @@
+#pragma GCC optimize("O3,unroll-loops") 
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #include "bits/stdc++.h"
 #include <chrono>
 using namespace std;
@@ -157,7 +159,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +167,68 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
+vb is_prime(31700, true);
+vi primes;
 
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+void pre_calc() {
+    is_prime[0] = false; 
+    is_prime[1] = false;
+    for (int i = 2; i <= 31700; i++) {
+        if (is_prime[i]) {
+            for (int j = i * i; j <= 31700; j += i)
+                is_prime[j] = false;
         }
     }
-
-    ps(d / 2.);
+    for(int i = 2; i < 31700; i++)
+        if(is_prime[i])
+            primes.pb(i);
 }
+
+void solve()
+{
+    def(int, n);
+    vi a(n);
+    re(a);
+
+    int pdivisors[112345];
+    for(int i = 0; i < 112345; i++)
+        pdivisors[i] = 0;
+
+    vi remaining_primes;
+
+    for(auto ai: a) {
+        for(auto prime: primes) 
+
+            if (prime > ai) break;
+            else if (ai % prime == 0) {
+                while(ai % prime == 0) ai /= prime;
+                if (++pdivisors[prime] > 1) {
+                    ps("YES");
+                    return;
+                }
+            }
+        if (ai > 1) remaining_primes.pb(ai);
+    }
+
+    sor(remaining_primes);
+    for(int i = 1; i < sz(remaining_primes); i++)
+        if (remaining_primes.at(i) > 1 && remaining_primes.at(i) == remaining_primes.at(i - 1)) {
+            ps("YES");
+            return;
+        }
+    
+    ps("NO");
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    pre_calc();
+
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

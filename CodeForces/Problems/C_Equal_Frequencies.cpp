@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,117 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n);
+    def(str, s);
 
-    ll dist;
+    vector<pair<int, char>> freqs(26);
+    for(auto c: s) freqs.at(c - 'a').f++;
+    for(int i = 0; i < 26; i++) freqs.at(i).s = 'a' + i;
+    sort(all(freqs), greater<ii>());
+    
+    vi divisors;
+    for(int i = 2; i * i <= n; i++)
+        if (n % i == 0) {
+            divisors.pb(i);
+            if (n / i != i) divisors.pb(n / i);
+        }
+    divisors.pb(n);
 
-    vector<ll> a(n);
+    sor(divisors);
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    dbg(freqs);
+
+    dbg(divisors);
+
+    vector<pair<int, str>> res;
+
+    for(auto divisor: divisors) {
+        dbg(n, n / divisor);
+        if(n / divisor > 26) continue;
+        map<char, int> above;
+        deque<pair<char, int>> bellow;
+        str aux (s);
+
+        int qnt = n / divisor, count = 1;
+
+        for(int i = 0; i < 26; i++) {
+            if (count > qnt) {
+                above[freqs.at(i).s] = freqs.at(i).f;
+            } else {
+                count++;
+                if (freqs.at(i).f > divisor)
+                    above[freqs.at(i).s] = freqs.at(i).f - divisor;
+                else if (freqs.at(i).f < divisor)
+                    bellow.push_back({freqs.at(i).s, divisor - freqs.at(i).f});
+            }
+        }
+
+        dbg(divisor, bellow, above);
+
+        int poss = 0;
+
+        for(auto& c: aux) {
+            if (!above[c]) continue;
+            above[c]--;
+            auto fr = bellow.front();
+            bellow.pop_front();
+            c = fr.f;
+            fr.s--;
+            if (fr.s > 0) bellow.push_front(fr);
+            poss++;
+        }
+
+        res.pb({poss, aux});
+
+        dbg(aux);
     }
 
-    sort(a.begin(), a.end());
+    if (n <= 26) {
+        V<char> available;
+        map<char, int> above;
+        for(auto freq: freqs) 
+            if (freq.f == 0)
+                available.pb(freq.s);
+            else if (freq.f > 1)
+                above[freq.s] += freq.f - 1;
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+        str aux(s);
+        int poss = 0;
+        int curAvailable = 0;
 
-    for (int i = 0; i < n; i++)
-    {
+        for(auto& c: aux) {
+            if(!above[c]) continue;
+            above[c]--;
+            c = curAvailable < sz(available) ? available.at(curAvailable++) : 'a';
+            poss++;
+        }
 
-        dist = max(dist, a[i] - a[i - 1]);
+        res.pb({poss, aux});
     }
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    int minPoss = LONG_LONG_MAX;
+    str resStr {"error"};
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for(auto [poss, aux]: res) {
+        if (poss < minPoss) {
+            minPoss = poss;
+            resStr = aux;
         }
     }
 
-    ps(d / 2.);
-}
+    ps(minPoss);
+    ps(resStr);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

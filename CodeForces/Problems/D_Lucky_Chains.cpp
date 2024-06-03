@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,78 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
+int minDiv[11234567];
+ 
+void sieve() {
+    for(int i = 0; i < 11234567; i++)
+        minDiv[i] = i;
 
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for (int i = 2; i * i <= 11234566; i++) {
+        if (minDiv[i] == i) {
+            for (int j = i * i; j <= 11234566; j += i)
+                if (minDiv[j] == j)
+                    minDiv[j] = i;
         }
     }
-
-    ps(d / 2.);
 }
+
+void solve()
+{
+    def(int, x, y);
+
+    int diff = y - x;
+
+    dbg(diff);
+    
+    if(diff == 0) {
+        ps(0);
+        return;
+    }
+
+    if(diff == 1) {
+        ps(-1);
+        return;
+    }
+
+    vi primedivs;
+
+    int aux = diff, last = -1;
+
+    while(aux > 1) {
+        dbg(aux, minDiv[aux]);
+        if (minDiv[aux] != last) {
+            last = minDiv[aux];
+            primedivs.pb(minDiv[aux]);
+        }
+        aux /= minDiv[aux];
+    }
+
+    dbg(primedivs);
+
+    int res = LONG_LONG_MAX;
+
+    for(auto primedi: primedivs) {
+        dbg(primedi);
+        if (x % primedi == 0) {
+            ps(0);
+            return;
+        }
+        res = min(res, primedi - x % primedi);
+    }
+
+
+    ps(res);
 }
 
 signed main()
 {
-    setIO();	
+    setIO();
 
-    int T{1};
+    sieve();	
+
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,76 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
+vi qnt(1001, -1);
 
-    ll dist;
+void precalc() {
+    queue<ii> q;
+    qnt.at(1) = 0;
+    q.push({2, 1});
 
-    vector<ll> a(n);
+    while(!q.empty()) {
+        ii x = q.front();
+        q.pop();
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+        if(qnt.at(x.f) == -1)
+            qnt.at(x.f) = x.s;
+        else continue;
+
+        set<int> nxts;
+        for(int i = 1; i <= x.f; i++)
+            if(x.f + x.f / i <= 1000)
+                nxts.insert(x.f + x.f / i);
+
+        for(auto nxt: nxts)
+            q.push({nxt, x.s + 1});
     }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
 }
 
-namespace Solution2 {
 void solve()
 {
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+    def(int, n, k);
+    vi b(n), c(n);
+    re(b, c);
+    
+    int res {0};
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    int sum {0};
+    vii v;
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for(int i {0}; i < n; i++) {
+        if (qnt.at(b.at(i)) == 0) res += c.at(i);
+        else {
+            sum += qnt.at(b.at(i));
+            v.pb({qnt.at(b.at(i)), c.at(i)});
         }
     }
 
-    ps(d / 2.);
-}
+    k = min(k, sum);
+
+    vi dp(k + 1);
+
+    dbg(v, k);
+
+    for(int i = 0; i < sz(v); i++)
+        for(int j = k; j >= v.at(i).f; j--)
+            dp.at(j) = max(dp.at(j), dp.at(j - v.at(i).f) + v.at(i).s);
+
+    int mx {0};
+    for(auto dpi: dp) mx = max(dpi, mx);
+    ps(res + mx);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    precalc();
+
+    dbg(qnt);
+
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

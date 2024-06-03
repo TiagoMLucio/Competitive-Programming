@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,42 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
+vi fib;
+
+void setFib() {
+    fib.pb(1);
+    fib.pb(1);
+    for(int i = 2; i <= 45; i++)
+        fib.pb(fib.at(i - 1) + fib.at(i - 2));
+}
+ 
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    def(int, n, x, y);
+    
+    while(n != 1) {
+        if (y > fib.at(n + 1) - fib.at(n) && y <= fib.at(n)) {
+            ps("NO");
+            return;
         }
-    }
+        if (y > fib.at(n)) y -= fib.at(n);
+        swap(x, y);
+        n--;
+    } 
 
-    ps(d / 2.);
-}
+    ps("YES");
+    
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    setFib();
+
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

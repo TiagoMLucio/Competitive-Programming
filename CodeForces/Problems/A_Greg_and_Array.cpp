@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,49 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
+    def(int, n, m, k);
     vi a(n);
-    re(a);
-    sor(a);
+    viii ops(m);
+    vii queries(k);
+    re(a, ops, queries);
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
+    dbg(n, m, k, a, ops, queries);
 
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
+    vi ops_times(m + 1);
+    for(auto query: queries) {
+        ops_times.at(query.f - 1)++;
+        ops_times.at(query.s)--;
     }
+    for(int i = 1; i <= m; i++)
+        ops_times.at(i) += ops_times.at(i - 1);
 
-    ps(d / 2.);
-}
+    dbg(ops_times);
+
+    vi sum_a(n + 1);    
+    for(int i = 0; i < m; i++) {
+        sum_a.at(get<0>(ops.at(i)) - 1) += ops_times.at(i) * get<2>(ops.at(i));
+        sum_a.at(get<1>(ops.at(i))) -= ops_times.at(i) * get<2>(ops.at(i));
+    }
+    for(int i = 1; i < n; i++)
+        sum_a.at(i) += sum_a.at(i - 1);
+
+    for(int i = 0; i < n; i ++) 
+        a.at(i) += sum_a.at(i);
+
+    dbg(sum_a, a);
+
+    ps(a);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    int T {1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

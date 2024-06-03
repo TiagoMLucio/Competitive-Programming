@@ -156,8 +156,8 @@ void setOut(str s) {
         fprintf(stderr, "Failed to open output file: %s\n", s.c_str());
 }
 void setIO(str s = "") {
-    cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    // cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,47 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n, m);
+    
+    ps('?', n, 1);
+    cout.flush();
+    def(int, dist1);
+    ps('?', 1, m);
+    cout.flush();
+    def(int, dist2);
 
-    ll dist;
+    ii inter1 {max(1LL, n - dist1), max(1LL, m - dist2)}, inter2 {min(n, 1 + dist2), min(m, 1 + dist1)};
 
-    vector<ll> a(n);
+    ii res;
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    if (inter1.f == inter2.f) {
+        if (inter2.s < inter1.s) swap(inter1, inter2);
+        ps('?', inter1.f, inter1.s);
+        def(int, dist3);
+        res = {inter1.f, inter1.s + dist3};
+    } else if (inter1.s == inter2.s) {
+        if (inter2.f < inter1.f) swap(inter1, inter2);
+        ps('?', inter1.f, inter1.s);
+        def(int, dist3);
+        res = {inter1.f + dist3, inter1.s};
+    } else {
+        ps('?', inter1.f, inter1.s);
+        def(int, dist3);
+        res = dist3 == 0 ? inter1 : inter2;
     }
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
-    }
-
-    ps(d / 2.);
-}
+    ps('!', res.f, res.s);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,98 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
+int mult(int x, int y) {
+    return ((x % MODN) * (y % MODN)) % MODN;
 }
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+ll powmod(ll a, ll b, ll p){
+    a %= p;
+    if (a == 0) return 0;
+    ll product = 1;
+    while(b > 0){
+        if (b&1){    // you can also use b % 2 == 1
+            product *= a;
+            product %= p;
+            --b;
         }
+        a *= a;
+        a %= p;
+        b /= 2;    // you can also use b >> 1
+    }
+    return product;
+}
+
+vi fact(312345, 1);
+
+void calcFacts() {
+    for(int i = 2; i <= 312345; i++)
+        fact[i] = mult(fact[i - 1], i);
+}
+
+ll inv(ll a, ll p){
+    return powmod(a, p-2, p);
+}
+
+ll nCk(ll n, ll k, ll p){
+    return ((fact[n] * inv(fact[k], p) % p) * inv(fact[n-k], p)) % p;
+}
+
+void solve()
+{
+    def(int, n, m);
+    vi v(n);
+    re(v);
+    
+    set<int> s;
+    map<int, int> freqs;
+    for(auto x: v) {freqs[x]++; s.insert(x);}
+
+    vi d;
+    for(auto si: s) d.pb(si);
+
+    int distinct = sz(d);
+
+    if (distinct < m) {
+        ps(0);
+        return;
     }
 
-    ps(d / 2.);
-}
+    vi inc(distinct);
+
+    for(int i = distinct - 2; i >= 0; i--)
+        inc.at(i) = d.at(i) == d.at(i + 1) - 1 ? inc.at(i + 1) + 1 : 0;
+
+    dbg(s, d, freqs, inc);
+
+    int res {0};
+
+    int mul {1};
+
+    for(int i = 0; i < m - 1; i++)
+        mul = mult(mul, freqs[d.at(i)]);
+
+    dbg(mul);
+
+    for(int i = 0; i < distinct - m + 1; i++) {
+        mul = mult(mul, freqs[d.at(i + m - 1)]);
+        if (inc.at(i) >= m - 1)
+            res = (res + mul) % MODN;
+
+        dbg(i, d.at(i), mul, res);
+        
+        mul = mult(mul, inv(freqs[d.at(i)], MODN));
+    }
+
+    ps(res);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

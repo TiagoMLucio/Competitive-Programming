@@ -8,7 +8,6 @@ using str = string;
 
 #define sz(x) static_cast<int>((x).size())
 #define endl '\n'
-#define int ll
 
 using ii = pair<int, int>;
 #define mp make_pair
@@ -157,7 +156,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,67 +164,47 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
+
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n, m);
+    viii ab(n);
 
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    for(int i = 0; i < n; i++) {
+        def(int, a, b);
+        ab.at(i) = {a, b, i + 1};
     }
 
-    sort(a.begin(), a.end());
+    sor(ab);
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    dbg(ab);
 
-    for (int i = 0; i < n; i++)
-    {
+    vi res;
+    int fns {0}, i {0}, cur {0}, cur_idx {0};
 
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    while (i < n) {
+        while(i < n && get<0>(ab[i]) <= fns + 1) {
+            if (get<1>(ab[i]) > cur) {
+                cur = get<1>(ab[i]);
+                cur_idx = get<2>(ab[i]);
+            }
+            i++;
         }
+        dbg(fns, cur, cur_idx);
+        if (!cur_idx) break;
+        res.pb(cur_idx);
+        cur_idx = 0;
+        fns = cur;
+        if (fns == m) {
+            ps("YES");
+            ps(sz(res));
+            ps(res);
+            return;
+        }
+        dbg(i, res, fns);
     }
 
-    ps(d / 2.);
-}
+    ps("NO");
 }
 
 signed main()
@@ -234,7 +213,7 @@ signed main()
 
     int T{1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

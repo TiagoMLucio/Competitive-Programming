@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,54 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n, m);
+    def(str, s);
+    
+    str abc = "abc", cba = "cba";
 
-    ll dist;
+    str a1, a2, a3, a4, a5, a6;
 
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    for(int i = 0; i < n; i++) {
+        a1.pb(abc.at(i % 3));
+        a2.pb(abc.at((i + 1) % 3));
+        a3.pb(abc.at((i + 2) % 3));
+        a4.pb(cba.at(i % 3));
+        a5.pb(cba.at((i + 1) % 3));
+        a6.pb(cba.at((i + 2) % 3));
     }
 
-    sort(a.begin(), a.end());
+    dbg(a1, a2, a3, a4, a5, a6);
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    vi ps1(n + 1), ps2(n + 1), ps3(n + 1), ps4(n + 1), ps5(n + 1), ps6(n + 1);
 
-    for (int i = 0; i < n; i++)
-    {
 
-        dist = max(dist, a[i] - a[i - 1]);
+    for(int i = 1; i <= n; i++) {
+        ps1.at(i) = ps1.at(i - 1) + (a1.at(i - 1) != s.at(i - 1) ? 1 : 0); 
+        ps2.at(i) = ps2.at(i - 1) + (a2.at(i - 1) != s.at(i - 1) ? 1 : 0); 
+        ps3.at(i) = ps3.at(i - 1) + (a3.at(i - 1) != s.at(i - 1) ? 1 : 0); 
+        ps4.at(i) = ps4.at(i - 1) + (a4.at(i - 1) != s.at(i - 1) ? 1 : 0); 
+        ps5.at(i) = ps5.at(i - 1) + (a5.at(i - 1) != s.at(i - 1) ? 1 : 0); 
+        ps6.at(i) = ps6.at(i - 1) + (a6.at(i - 1) != s.at(i - 1) ? 1 : 0); 
     }
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    dbg(ps1, ps2, ps3);
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
+    while(m--) {
+        def(int, l, r);
+        ps(min({ps1.at(r) - ps1.at(l - 1), ps2.at(r) - ps2.at(l - 1), ps3.at(r) - ps3.at(l - 1), ps4.at(r) - ps4.at(l - 1), ps5.at(r) - ps5.at(l - 1), ps6.at(r) - ps6.at(l - 1)}));
     }
-
-    ps(d / 2.);
-}
+    
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    int T {1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

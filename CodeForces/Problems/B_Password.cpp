@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,67 +165,51 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+vector<int> z_function(string s) {
+    int n = s.size();
+    vector<int> z(n);
+    int l = 0, r = 0;
+    for(int i = 1; i < n; i++) {
+        if(i < r) {
+            z[i] = min(r - i, z[i - l]);
+        }
+        while(i + z[i] < n && s[z[i]] == s[i + z[i]]) {
+            z[i]++;
+        }
+        if(i + z[i] > r) {
+            l = i;
+            r = i + z[i];
         }
     }
-
-    ps(d / 2.);
+    return z;
 }
+
+void solve()
+{
+    def(str, s);
+    int n {sz(s)};
+    vi z(n);
+    z = z_function(s);
+    
+    map<int, int> freqs;
+    for(auto zi: z) freqs[zi]++;
+    vi suffix;
+    for(int i = 0; i < n; i++)
+        if (i + z[i] == n)
+            suffix.pb(z[i]);
+
+    sor(suffix);
+    sor(z);
+
+    dbg(z, freqs, suffix);
+
+    if (sz(suffix) >= 1 && (z.at(n - 1) > suffix.at(sz(suffix) - 1) || freqs[suffix.at(sz(suffix) - 1)] > 1))
+        ps(s.substr(0, suffix.at(sz(suffix) - 1)));
+    else if (sz(suffix) >= 2)
+        ps(s.substr(0, suffix.at(sz(suffix) - 2)));
+    else
+        ps("Just a legend");
+    
 }
 
 signed main()
@@ -234,7 +218,7 @@ signed main()
 
     int T{1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

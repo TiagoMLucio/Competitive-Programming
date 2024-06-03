@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,67 +165,60 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
+int n, k;
+vi dists;
+vi bellow;
+V<vi> adj;
 
-    ll dist;
+int dfs(int v, int par, int dist) {
+    dbg(v, par, dist);
 
-    vector<ll> a(n);
+    vi nbrs;
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
+    int children = 0;
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for(auto u: adj.at(v)) {
+        if (u != par) {
+            children += 1 + dfs(u, v, dist + 1);
         }
     }
 
-    ps(d / 2.);
+    dists.at(v) = dist;
+    bellow.at(v) = children;
+
+    return children;
 }
+
+void solve()
+{
+    re(n, k);
+    adj.resize(n);
+    bellow.resize(n);
+    dists.resize(n);
+    
+    for(int i = 0; i < n - 1; i++) {
+        def(int, u, v); u--; v--;
+        adj.at(u).pb(v);
+        adj.at(v).pb(u);
+    }
+    
+
+    dfs(0, -1, 0);
+
+    vi aux(n);
+
+    for(int i = 0; i < n; i++)
+        aux.at(i) = dists.at(i) - bellow.at(i);
+
+    sor(aux);
+
+    dbg(aux, dists, bellow);
+
+    int res {0};
+
+    for(int i = n - 1; i >= n - k; i--)
+        res += aux.at(i);
+    ps(res);
 }
 
 signed main()
@@ -234,7 +227,7 @@ signed main()
 
     int T{1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

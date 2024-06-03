@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,67 +165,72 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
+int n, m, k;
+V<str> grid;
+map<ii, vii> adj;
+map<ii, bool> removed;
+
+int dfs(ii v, ii p, int k) {
+    vii nbrs;
+
+    for(auto nbr: adj.at(v))
+        if(nbr != p)
+            nbrs.pb(nbr);
+        
+    if (sz(nbrs) == 1)
+
+    // used[v] = 1;
+    // k = a[v] ? k + a[v] : 0;
+
+    // if (k > m) {used[v] = 0; return 0;}
+
+    // vi filhos;
+
+    // for (int u: adj[v])
+    //     if (!used[u])
+    //         filhos.pb(u);
+
+    // if (sz(filhos) == 0) {used[v] = 0; return 1;}
+
+    // int res = 0;
+
+    // for (int i = 0; i < sz(filhos); i++) {
+    //     res += dfs(filhos[i], k);
+    // }
+
+    // used[v] = 0;
+    // return res;
+}
+
+bool inside_grid(ii coord) {
+    return coord.f >= 0 && coord.f < n && coord.s >= 0 && coord.s < m;
+}
+
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    re(n, m, k);
+    grid.resize(n);
+    re(grid);
 
-    ll dist;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if (grid.at(i).at(j) == '.') {
+                for(int d = 0; d < 4; d++) {
+                    ii nbr {i + dx[d], j + dy[d]};
+                    if (inside_grid(nbr) && grid.at(nbr.f).at(nbr.s) == '.')
+                        adj[{i, j}].pb(nbr);
+                }
+            }
 
-    vector<ll> a(n);
+    dfs(adj.begin()->f, {-1, -1}, k);
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
-    }
-
-    ps(d / 2.);
-}
+    // for(int i = 0; i < n; i++) {
+    //     for(int j = 0; j < m; j++) {
+    //         cout << (removed[{i, j}] ? 'X' : grid.at(i).at(j));
+    //     }
+    //     cout << endl;
+    // }
 }
 
 signed main()
@@ -234,7 +239,7 @@ signed main()
 
     int T{1};
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

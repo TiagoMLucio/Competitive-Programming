@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,59 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
-void solve()
-{
-    int n, l;
-    cin >> n >> l;
+V<vi> adj;
+vb used;
+vb leaf;
 
-    ll dist;
+void dfs (int v) {
+    used.at(v) = true;
+    int siz = 0;
 
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
-    }
-
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for(auto u: adj.at(v))  {
+        siz += 1;
+        if (!used.at(u)) {
+            dfs(u);
         }
     }
 
-    ps(d / 2.);
+    leaf.at(v) = (siz == 1 || siz == 0);
 }
+
+void solve()
+{
+    def(int, n, x);
+    x--;
+    adj.resize(n);
+    used.resize(n, false);
+    leaf.resize(n, false);
+
+    for(int i = 0; i < n - 1; i++) {
+        def(int, u, v); u--; v--;
+        adj.at(u).pb(v);
+        adj.at(v).pb(u);
+    }
+
+    dfs(0);
+
+    if (leaf[x] || n % 2 == 0) {
+        ps("Ayush");
+    } else {
+        ps("Ashish");
+    }
+
+
+    adj.clear();
+    used.clear();
+    leaf.clear();
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

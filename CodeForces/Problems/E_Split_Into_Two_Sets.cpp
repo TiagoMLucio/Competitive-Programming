@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,71 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n);
 
-    ll dist;
+    vii ab(n);
+    re(ab);
 
-    vector<ll> a(n);
+    map<int, int> freqs;
+    for(auto abi: ab) {
+        freqs[abi.f]++;
+        freqs[abi.s]++;
+    }
+    
+    bool works = true;
+    for(auto freqi: freqs)
+        if (freqi.s != 2)
+            works = false;
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    if (!works) {
+        ps("NO");
+        return;
     }
 
-    sort(a.begin(), a.end());
+    V<vi> adj(n);
+    vb used(n);
 
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
+    for(int i = 0; i < n; i++) {
+        int a = ab.at(i).f - 1, b = ab.at(i).s - 1;
+        adj.at(a).pb(b);
+        adj.at(b).pb(a);
     }
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    for(int i = 0; i < n; i++) {
+        if (used.at(i)) continue;
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
+        int par = -1, nxt = i, count {0};
+        do {
+            used.at(nxt) = true;
+            bool foundPar = false;
 
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+            for(auto nbr: adj.at(nxt)) 
+                if (foundPar || nbr != par) {
+                    par = nxt;
+                    nxt = nbr;
+                    break;
+                } else foundPar = true;
+                
+            count++;
+        } while(nxt != i);
+        if (count & 1) {
+            ps("NO");
+            return;
         }
-    }
+    }    
 
-    ps(d / 2.);
-}
+    ps("YES");
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

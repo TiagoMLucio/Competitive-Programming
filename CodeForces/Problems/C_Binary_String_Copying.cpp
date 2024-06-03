@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,46 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
+    def(int, n, m);
+    def(str, s);
 
-    ll dist;
+    set<ii> seqs;    
 
-    vector<ll> a(n);
+    vi lZero(n), rOne(n);
 
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    int lastZero = -1, nxtOne = n;
+
+    for(int i = 0; i < n; i++) {
+        if (s.at(i) == '0') lastZero = i;
+        lZero.at(i) = lastZero;
     }
 
-    sort(a.begin(), a.end());
-
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
+    for(int i = n - 1; i >= 0; i--) {
+        if (s.at(i) == '1') nxtOne = i;
+        rOne.at(i) = nxtOne;
     }
 
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
+    while(m--) {
+        def(int, l, r);
+        
+        int ll = rOne.at(l - 1), rr = lZero.at(r - 1);
 
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
+        if (rr < ll) seqs.insert({-1, -1});
+        else seqs.insert({ll, rr});
     }
 
-    ps(d / 2.);
-}
+    ps(sz(seqs));
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

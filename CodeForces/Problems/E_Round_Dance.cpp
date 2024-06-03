@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,66 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
+vi used;
+V<set<int>> adj;
+
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    def(int, n);
+    vi v(n);
+    adj.resize(n);
+    used.resize(n);
+    re(v);
+    for(auto &x: v) x--;
+    for(int i = 0; i < n; i++) {
+        adj.at(i).insert(v.at(i));
+        adj.at(v.at(i)).insert(i);
     }
 
-    sort(a.begin(), a.end());
+    int cycle {0}, slice {0};
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    dbg(adj);
 
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
+    for(int i = 0; i < n; i++) {
+        if (used.at(i)) continue;
+        queue<int> q;
+        q.push(i);
+        vi nodes;
+        while(!q.empty()) {
+            int nxt = q.front();
+            nodes.pb(nxt);
+            used.at(nxt) = true;
+            q.pop();
+            for(auto v: adj.at(nxt))
+                if (!used.at(v))
+                    q.push(v);
         }
+        
+        int isSlice = false;
+
+        for(auto v: nodes) 
+            if(sz(adj.at(v)) == 1)
+                isSlice = true;
+        
+        if(isSlice) slice++;
+        else cycle++;
     }
 
-    ps(d / 2.);
-}
+    dbg(cycle, slice);
+
+    ps(cycle + min(slice, 1LL), cycle + slice);
+
+    adj.clear();
+    used.clear();
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,65 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    def(int, n);
+    def(str, s);
+    
+    if (n & 1) {
+        ps(-1);
+        return;
     }
 
-    sort(a.begin(), a.end());
+    V<int> changes(26), options(26);
+    int total {0}, maxChange {0};
+    int maxChar;
 
-    dist = 2 * max(a[0], l - a[n - 1]);
-
-    for (int i = 0; i < n; i++)
-    {
-
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
+    for(int i = 0; i < n / 2; i++) {
+        if (s.at(i) == s.at(n - i - 1)) {
+            changes[s.at(i) - 'a']++;
+            total++;
         } else {
-            l = mid + 1;
+            options[s.at(i) - 'a']--;
+            options[s.at(n - i - 1) - 'a']--;
         }
     }
 
-    ps(d / 2.);
-}
+    if (total == 0) {
+        ps(0);
+        return;
+    }
+
+    for(int i = 0; i < 26; i++) {
+        if (changes.at(i) > maxChange) {
+            maxChange = changes.at(i);
+            maxChar = i;
+        }
+    }
+
+    dbg(changes, options, total, maxChange, maxChar);
+
+    if (maxChange <= total / 2) {
+        ps((total + 1) / 2);
+        return;
+    }
+
+    int missing = 2 * maxChange - total;
+
+    dbg(missing, options.at(maxChar) + (n / 2 - total));
+
+    if (options.at(maxChar) + (n / 2 - total) >= missing) {
+        ps(maxChange);
+    } else ps(-1);
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());

@@ -157,7 +157,7 @@ void setOut(str s) {
 }
 void setIO(str s = "") {
     cin.tie(nullptr)->sync_with_stdio(false);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(12);
     // cin.exceptions(cin.failbit);
     // throws exception when do smth illegal
     // ex. try to read letter into int
@@ -165,76 +165,74 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-namespace Solution1 {
+V<vi> adjs;
+vi subCount;
+vi memo;
+
+int calcBellow(int v, int par) {
+    int res {1};
+    for(auto node: adjs.at(v))
+        if (node != par)
+            res += calcBellow(node, v);
+
+    subCount.at(v) = res;
+    return res;
+}
+
+int dfs(int v, int par) {
+    if (memo.at(v) != -1) return memo.at(v);
+    int res {0};
+
+    int dfsSum {0};
+
+    vi sons;
+
+    for(auto node: adjs.at(v))
+        if(node != par)
+            sons.pb(node);
+
+    dbg(v, sons);
+
+    for(auto son: sons) dfsSum += dfs(son, v);
+
+    for(auto son: sons) res = max(res, subCount.at(son) - 1 + dfsSum - dfs(son, v));
+
+    memo.at(v) = res;
+
+    return res;
+}
+
 void solve()
 {
-    int n, l;
-    cin >> n >> l;
-
-    ll dist;
-
-    vector<ll> a(n);
-
-    for (ll i = 0; i < n; i++)
-    {
-        cin >> a[i];
+    def(int, n);
+    adjs.resize(n);
+    memo.resize(n, -1);
+    subCount.resize(n);
+    
+    for(int i {0}; i < n - 1; i++) {
+        def(int, ui, vi); ui--; vi--;
+        adjs.at(ui).pb(vi);
+        adjs.at(vi).pb(ui);        
     }
 
-    sort(a.begin(), a.end());
+    calcBellow(0, -1);
 
-    dist = 2 * max(a[0], l - a[n - 1]);
+    ps(dfs(0, -1));
 
-    for (int i = 0; i < n; i++)
-    {
+    dbg(memo);
 
-        dist = max(dist, a[i] - a[i - 1]);
-    }
-
-    std::cout << std::fixed;
-    std::cout << std::setprecision(10);
-    cout << dist/2. << endl;
-}
-}
-
-namespace Solution2 {
-void solve()
-{
-    def(int, n, len);
-    vi a(n);
-    re(a);
-    sor(a);
-
-    int l = 0, r = 2LL * 1123456789, mid;
-    int d = 0;
-    while(l <= r) {
-        mid = (l + r) / 2;
-        bool check = true;
-        for(int i = 1; i < n; i++)
-            if (a.at(i) - a.at(i - 1) > mid) {
-                check = false;
-                break;
-            }  
-        check &= 2 * a.at(0) <= mid && 2 * (len - a.at(n - 1)) <= mid;
-
-        if (check) {
-            r = mid - 1;
-            d = mid; 
-        } else {
-            l = mid + 1;
-        }
-    }
-
-    ps(d / 2.);
-}
+    adjs.clear();
+    memo.clear();
+    subCount.clear();
 }
 
 signed main()
 {
     setIO();	
 
-    int T{1};
+    def(int, T);
     while (T--) {
-        Solution2::solve();
+        solve();
     }
 
     // dbg(time_elapsed());
