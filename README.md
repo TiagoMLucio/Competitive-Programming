@@ -5,14 +5,21 @@ Welcome to my personal repository where I keep track of the competitive programm
 
 ## Repository Structure
 
-- `AtCoder`: My solutions to AtCoder contests.
-- `CodeChef`: My solutions to CodeChef contests.
-- `CodeForces`: My solutions to Codeforces contests.
+- `atcoder`: My solutions to AtCoder contests.
+- `codechef`: My solutions to CodeChef contests.
+- `codeforces`: My solutions to Codeforces contests.
+- `cses`: My solutions to Cses problems.
+- `maratona`: My solutions to problems and phases from Maratona.
 - `templates`: A personal collection of templates and algorithms for competitive programming.
 
 ## Custom Shell Functions for Compilation and Debugging
 
 I use a set of custom shell functions to compile and debug my C++ solutions. These are added to my `~/.zshrc` file for convenience.
+
+### How to Set Up
+
+1. Copy the function definitions into your `~/.zshrc` file.
+2. Run `source ~/.zshrc` or restart your terminal to apply the changes.
 
 ### Compile & Run
 
@@ -82,10 +89,70 @@ Usage:
 debug <filename>
 ```
 
-### How to Set Up
+### Navigation
 
-1. Copy the function definitions into your `~/.zshrc` file.
-2. Run `source ~/.zshrc` or restart your terminal to apply the changes.
+Firstly, setup the following variables:
+
+- `CP_DIR`: Directory to the Competitive-Programming folder. 
+- `platforms`: Map to the platforms configured in the folder.
+
+```bash
+CP_DIR="~/Documents/Competitive-Programming"
+declare -A platforms=( ["cf"]="codeforces" ["ac"]="atcoder" ["cc"]="codechef" ["cs"]="cses" )
+```
+
+#### Template File
+
+Opens the tamplate file in VS Code.
+
+```bash
+template() {
+        cd "${CP_DIR}/" && code -gr "${CP_DIR}/templates/basic.cpp:171:5";
+}
+```
+
+Usage:
+
+```bash
+template
+```
+
+
+#### New Contest
+
+Sets up a new directory for a contest from a specified platform (default is Codeforces) and opens it in VS Code.
+
+```bash
+contest() {
+        local platform=${platforms[${2:-cf}]}  
+        local contest_dir="${CP_DIR}/${platform}/Contests/${1}"
+        mkdir -p "${contest_dir}" && code -r "${contest_dir}/" && echo "${platform}" && echo "${contest_dir}";
+}
+```
+
+Usage:
+
+```bash
+contest <contest_id> [ cf | ac | cc ]
+```
+
+#### Problems Folder
+
+Opens the problems directory for a specified platform (default is Codeforces) in VS Code.
+
+```bash
+problems() {
+        local platform=${platforms[${1:-cf}]} 
+        local problems_dir="${CP_DIR}/${platform}/Problems"
+        mkdir -p "${problems_dir}" && code -r "${problems_dir}/"
+}
+```
+
+Usage:
+
+```bash
+problems [ cf | ac | cc ]
+```
 
 ## License
 
