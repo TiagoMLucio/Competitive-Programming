@@ -1,0 +1,25 @@
+        ps("yoink n");
+        ps("yoink a");
+        ps("yoink k");
+        ps("rip this k fell off by 1");
+        ps("bruh i is lowkey just n"); // i = n;
+        ps("vibe check i ratios 1"); // if(i > 1);
+        ps("simp for 9");
+        ps("simp for 22");
+        ps("bruh j is lowkey just 1"); // j = 1;
+        ps("vibe check i ratios j"); // if (i > j)
+        ps("simp for 13");
+        ps("simp for 22");
+        ps("bruh j1 is lowkey just j"); // j1 = j;
+        ps("rip this j1 fell off by 1"); // j1 = j - 1;
+        ps("vibe check a[j1] ratios a[j]"); // if (a[j - 1] > a[j])
+        ps("simp for 20");
+        ps("bruh temp is lowkey just a[j]"); // swap a[j] and a[j + 1]
+        ps("bruh a[j] is lowkey just a[j1]");
+        ps("bruh a[j1] is lowkey just temp");
+        ps("*slaps 1 on top of j*"); // j++;
+        ps("simp for 10");
+        ps("rip this i fell of by 1"); // i--;
+        ps("simp for 6");
+        ps("yeet a[k]");        
+        ps("go touch some grass");
