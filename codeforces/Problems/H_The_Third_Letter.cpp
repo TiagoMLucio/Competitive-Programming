@@ -165,53 +165,51 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+V<vii> adj;
+vi dist;
+vb used;
+
+bool dfs(int x, int par = -1) {
+    used.at(x) = true;
+    for(auto nbr: adj.at(x))
+        if (nbr.f != par) {
+            int newDist = dist.at(x) + nbr.s;
+            if (used.at(nbr.f) && dist.at(nbr.f) != newDist) return false;
+            dist.at(nbr.f) = newDist;
+            if (!used.at(nbr.f) && !dfs(nbr.f, x)) return false;
+        }
+
+    return true;
+}
+
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    adj.resize(n);
+    dist.resize(n, -1);
+    used.resize(n, false);
+    dist.at(0) = 0;
 
-    int ans {0};
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = 0; i < m; i++) {
+        def(int, a, b, d); a--; b--;
+        adj.at(a).pb({b, d});
+        adj.at(b).pb({a, -d});
     }
-    
-    ps(ans);
+
+    bool ans = true;
+
+    for(int i = 0; i < n; i++)
+        if (!used.at(i) & !dfs(i)) {
+            ans = false;
+            break;
+        }
+
+    ps(ans ? "YES" : "NO");
+
+    adj.clear();
+    dist.clear();
+    used.clear();
 }
 
 signed main()

@@ -165,53 +165,53 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+V<viii> adj;
+vi r;
+
+void dfs(int v, int ai, vi &b) {
+    dbg(v, b);
+
+    if (v != 1) {
+        int l = 0, rr = sz(b) - 1, mid;
+        while(l <= rr) {
+            dbg(l, rr, mid);
+            mid = (l + rr) / 2;
+            if(ai >= b.at(mid)) {
+                r.at(v) = mid + 1;
+                l = mid + 1;
+            } else rr = mid - 1;
+        }
+    };
+
+    for(auto [u, au, bu]: adj.at(v)) {
+        b.pb((sz(b) > 0 ? b.at(sz(b) - 1) : 0) + bu);
+        dfs(u, ai + au, b);
+        b.pop_back();
+    }
+}
+
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    adj.resize(n + 1);
+    r.resize(n + 1);
 
-    int ans {0};
+    stack<int> st;
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = 2; i <= n; i++) {
+        def(int, pi, ai, bi);
+        adj.at(pi).pb({i, ai, bi});
     }
-    
-    ps(ans);
+
+    vi b;
+
+    dfs(1, 0, b);
+
+    r.erase(r.begin(), r.begin() + 2);
+    ps(r);
+
+    adj.clear();
+    r.clear();
 }
 
 signed main()

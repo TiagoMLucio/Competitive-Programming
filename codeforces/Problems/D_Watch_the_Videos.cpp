@@ -167,50 +167,37 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    multiset<int> a;
+    
+    for(int i = 0; i < n; i++) {
+        def(int, ai);
+        a.insert(ai);
+    }
 
+    dbg(a);
+    
     int ans {0};
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    auto nxt = --a.end();
     
+    while(1) {
+        int val = *nxt;
+        dbg(a, ans, val);
+        ans += val;
+        a.erase(nxt);
+        if(a.empty()) {
+            ans++;
+            break;
+        }
+
+        auto it = a.upper_bound(m - val);
+        if (it == a.begin()) {
+            ans++;
+            nxt = --a.end();
+        } else nxt = --it;
+    }
+
     ps(ans);
 }
 
@@ -218,7 +205,7 @@ signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T{1};
     while (T--) {
         solve();
     }

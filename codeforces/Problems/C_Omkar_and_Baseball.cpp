@@ -167,51 +167,35 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi v(n);
+    re(v);
+    
+    int start = 0, end = n - 1;
+
+    for(int i = 0; i < n && v.at(i) == i + 1; i++)
+        start++;
+
+
+    if(start == n) {
+        ps(0); return;
+    }
+    
+    for(int j = n - 1; j < n && v.at(j) == j + 1; j--)
+        end--;
 
     int ans {0};
 
-    int neg = -1;
+    dbg(start, end);
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(int i = start; i <= end; i++) {
+        if (v.at(i) == i + 1) {
+            ps(2);
+            return;
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
-    
-    ps(ans);
+
+    ps(1);
 }
 
 signed main()

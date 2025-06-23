@@ -165,52 +165,34 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+int f(int a, int b, int j) {
+    return j + a / (j + 1)  + (a % (j + 1) ? 1 : 0) + b / (j + 1) + (b % (j + 1) ? 1 : 0);
+} 
+
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, a, b);
     
+    double l = 0, r = 1e9, m1, m2;
+
+    double eps = 1e-3;
+    while (r - l > eps) {
+        m1 = l + (r - l) / 3;
+        m2 = r - (r - l) / 3;
+        dbg(l, r, m1, m2);
+        int f1 = f(a, b, m1), f2 = f(a, b, m2);
+
+        if (f1 > f2) l = m1;
+        else r = m2;
+    }
+
+    int x = static_cast<int>(l);
+
+    int ans {LONG_LONG_MAX};
+
+    for(int i = max(0LL, x - 10000); i <= x + 10000; i++)
+        ans = min(ans, f(a, b, i));
+
     ps(ans);
 }
 

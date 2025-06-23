@@ -167,50 +167,60 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, k, c);
 
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    V<vi> adj(n + 1);
+    for(int i = 0; i < n - 1; i++) {
+        def(int, u, v);
+        adj.at(u).pb(v);
+        adj.at(v).pb(u);
     }
-    
+
+    vi dist(n + 1);
+    int mxVDist = 1, mxDist = 0; 
+    dist.at(0) = -1; 
+    queue<ii> q;
+    q.push({1, 0});
+    while(!q.empty()) {
+        auto [v, pi] = q.front(); q.pop();
+        dist.at(v) = dist.at(pi) + 1;
+        if (dist.at(v) > mxDist) {
+            mxDist = dist.at(v);
+            mxVDist = v;
+        }
+        for(auto u: adj.at(v))
+            if (u != pi) 
+                q.push({u, v});
+    }
+
+    if (c >= k) {
+        ps(mxDist * k);
+        return;
+    }
+
+    dbg(mxVDist, mxDist);
+
+    int ans = {mxDist};
+
+    vi dist2(n + 1);
+    int mxVDist2 = mxVDist, mxDist2 = 0;
+    dist2.at(0) = -1;
+    q.push({mxVDist, 0});
+    while(!q.empty()) {
+        auto [v, pi] = q.front(); q.pop();
+        dist2.at(v) = dist2.at(pi) + 1;
+        if (dist2.at(v) > mxDist2) {
+            mxDist2 = dist2.at(v);
+            mxVDist2 = v;
+        }
+        ans = max(ans, k * dist2.at(v) - c * dist.at(v));
+        for(auto u: adj.at(v))
+            if (u != pi) 
+                q.push({u, v});
+    }
+
+    dbg(mxVDist2, mxDist2);
+
     ps(ans);
 }
 

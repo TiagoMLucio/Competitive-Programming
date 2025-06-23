@@ -167,51 +167,54 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    def(str, s);
 
-    int ans {0};
+    int type2 = 0;
+    for(auto si: s) {
+        if (si == '2') type2++;
+    }
 
-    int neg = -1;
+    vs ans(n, str(n, '='));
+    for(int i = 0; i < n; i++)
+        ans.at(i).at(i) = 'X';
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    if (type2 == 0) {
+        ps("YES");
+        ps(ans);
+        return;
+    } 
+    
+    if (type2 < 3) {
+        ps("NO");
+        return;
     }
     
+    vi win(n, -1);
+
+    int first {-1}, last {-1};
+
+    for(int i = 0; i < n; i++) {
+        if (s.at(i) == '2') {
+            if (last != -1) {
+                win.at(last) = i;
+            } 
+            if(first == -1) first = i;
+            last = i;
+        }
+    }
+
+    win.at(last) = first;
+
+    for(int i = 0; i < n; i++) {
+        if (win.at(i) == -1) continue;
+        ans.at(i).at(win.at(i)) = '+';
+        ans.at(win.at(i)).at(i) = '-';
+    }
+
+    ps("YES");
     ps(ans);
+    
 }
 
 signed main()

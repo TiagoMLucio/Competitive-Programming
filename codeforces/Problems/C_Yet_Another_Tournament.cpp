@@ -167,51 +167,43 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    vi a(n);
+    re(a);
 
-    int ans {0};
+    vi s(a);
+    sor(s);
 
-    int neg = -1;
+    int l = 1, r = n, mid;
 
-    int x = r;
+    int ans {-1};
 
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
+    while(l <= r) {
+        mid = (l + r) / 2;
+        dbg(l, r, mid);
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
+        int minM {a.at(n - mid)};
+        bool curFound = false;
+        for(int j = 0, i = 0; j < n - mid - 1; i++) 
+            if (!curFound && s.at(i) == a.at(n - mid)) curFound = true;
+            else {minM += s.at(i); j++;}
 
-        // === ta na ordem errada ===
+        dbg(minM);
 
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
+        int sum {0};
+        for(int j = 0; j < n - mid + 1; j++) sum += s.at(j);
 
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+        dbg(sum);
+
+        minM = min(minM, sum);
+
+        if (m >= minM) {
+            ans = mid;
+            r = mid - 1;
+        } else l = mid + 1;
     }
-    
-    ps(ans);
+
+    ps(ans == -1 ? n + 1 : ans);
 }
 
 signed main()

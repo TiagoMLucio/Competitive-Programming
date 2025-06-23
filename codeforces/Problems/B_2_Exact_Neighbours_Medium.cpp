@@ -167,61 +167,65 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi aux(n);
+    re(aux);
+    vii a(n);
+    for(int i = 0; i < n; i++)
+        a.at(i) = {aux.at(i), i + 1};
+    sor(a);
 
-    int ans {0};
+    dbg(a);
 
-    int neg = -1;
+    ps("YES");
 
-    int x = r;
+    map<int, ii> coords;
+    map<int, int> ans;
 
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
+    coords[a.at(n - 1).s] = {n, n};
+    ans[a.at(n - 1).s] = a.at(n - 1).f == 0 ? a.at(n - 1).s : a.at(n - 2).s;
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = n - 2; i >= 0; i--) {
+        dbg(i, coords[a.at(i + 1).s].f, a.at(i + 1).f);
+        if (a.at(i + 1).f == 0) coords[a.at(i).s] = {i + 1, coords[a.at(i + 1).s].s};
+        else coords[a.at(i).s] = {i + 1, coords[a.at(i + 1).s].s + ((i - (n - 2)) % 2 == 0 ? -1 : 1) * (a.at(i + 1).f - 1)};
+        ans[a.at(i).s] = a.at(i).f == 0 ? a.at(i).s : a.at(i - 1).s;
     }
-    
-    ps(ans);
+
+    for(auto coord: coords)
+        ps(coord.s);
+
+    for(auto x: ans)
+        cout << x.s << " ";
+    cout << endl;
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T{1};
     while (T--) {
         solve();
     }
 
     // dbg(time_elapsed());
 }
+
+/*
+1 0
+2 4
+3 2
+4 4
+
+in order:
+1 0 
+3 2
+2 4
+4 4
+
+0 0 2 0
+0 0 0 0
+1 0 0 0
+0 3 0 4
+*/

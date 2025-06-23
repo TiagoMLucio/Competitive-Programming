@@ -167,51 +167,41 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n, m, k);
     
-    ps(ans);
+    int sum {n - 1 + m - 1}, diff {k - sum};
+
+    if (diff < 0 || diff % 4 == 1 || diff % 4 == 3) {
+        ps("NO");
+        return;
+    }
+
+    ps("YES");
+
+    V<V<char>> ans1(n, V<char>(m - 1, 'B'));
+    V<V<char>> ans2(n - 1, V<char>(m, 'B'));
+
+    ans1.at(0).at(0) = 'R';
+    ans1.at(1).at(0) = 'R';
+    ans2.at(0).at(2) = 'R';
+
+    dbgn(ans1);
+    dbgn(ans2);
+
+    char c = 'R';
+
+
+
+    for(int i = 0; i < m - 1; i++)
+        if (diff == 2 ^ ((n & 1) ^ !(i & 1)))
+            ans1.at(n - 1).at(i) = 'R'; 
+
+    for(int i = 0; i < n - 1; i++)
+        if (diff == 2 ^ (i & 1))
+            ans2.at(i).at(0) = 'R';
+
+    ps(ans1);
+    ps(ans2);
 }
 
 signed main()

@@ -165,52 +165,51 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+V<vi> adj;
+vi ans;
+map<ii, int> edges;
+
+int dfs(int v, int p = -1) {
+    int cnt = 1;
+
+    dbg(v, p, adj.at(v));
+    
+    for(auto u: adj.at(v)) 
+        if (u != p)
+            cnt += dfs(u, v);
+    
+    if (cnt % 3 == 0 && p != -1) 
+        ans.pb(edges[{v, p}]);
+    
+    return cnt;
+}
+
 void solve()
 {
-    def(int, a, b, r);
+    adj.clear();
+    edges.clear();
+    ans.clear();
+    def(int, n);
+    adj.resize(n + 1);
 
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = 0; i < n - 1; i++) {
+        def(int, u, v);
+        adj.at(u).pb(v);
+        adj.at(v).pb(u);
+        edges[{u, v}] = i + 1;
+        edges[{v, u}] = i + 1;
     }
-    
+
+    dfs(1);
+
+    dbg(ans);
+
+    if (n % 3 != 0 || sz(ans) != n / 3 - 1) {
+        ps(-1);
+        return;
+    }
+
+    ps(sz(ans));
     ps(ans);
 }
 

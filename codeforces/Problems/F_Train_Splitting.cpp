@@ -167,50 +167,34 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
+    def(int, n, m);
+    vii uv(m);
+    re(uv);
         
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
+    bool full = m == n * (n - 1) / 2;
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
+    V<vi> adj(n + 1);
 
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(auto [u, v]: uv) {
+        adj.at(u).pb(v);
+        adj.at(v).pb(u);
     }
-    
+
+    int x = 1;
+
+    for(int i = 1; i <= n; i++) 
+        if (sz(adj.at(i)) < n - 1) x = i; 
+
+    vi ans;
+    int cur {0};
+
+    for(auto [u, v]: uv) {
+        if (u == x || v == x) 
+            ans.pb(full && ++cur ==  n - 1 ? 3 : 2);
+        else ans.pb(1);
+    }
+
+    ps(full ? 3 : 2);
     ps(ans);
 }
 

@@ -165,57 +165,62 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-void solve()
-{
-    def(int, a, b, r);
+void solve() {
+    def(int, n, m);
+    vi a(n);
+    re(a);
+    sor(a);
 
-    int ans {0};
+    int l = 0, r = -1;
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    int ans = LONG_LONG_MAX;
     
-    ps(ans);
+    vi freqs(m + 1);
+
+    int k = 0;
+
+    while(r < n) {
+        dbg(l, r, k, freqs);
+        if (k == m) {
+            ans = min(ans, a.at(r) - a.at(l));
+            dbg(ans);
+            for(int i = 1; i <= m && i * i <= a.at(l); i++) {
+                if (a.at(l) % i == 0) {
+                    freqs.at(i)--;
+                    if (freqs.at(i) == 0) k--;
+                    if (a.at(l) / i != i) {
+                        if (a.at(l) / i <= m) {
+                            freqs.at(a.at(l) / i)--;
+                            if (freqs.at(a.at(l) / i) == 0) k--;
+                        }
+                    } 
+                }
+            }
+            l++;
+        } else {
+            r++;
+            if (r == n) break;
+            for(int i = 1; i <= m && i * i <= a.at(r); i++) {
+                if (a.at(r) % i == 0) {
+                    dbg(i);
+                    if (freqs.at(i) == 0) k++;
+                    freqs.at(i)++;
+                    if (a.at(r) / i != i) {
+                        if (a.at(r) / i <= m) {
+                            dbg(a.at(r) / i);
+                            if (freqs.at(a.at(r) / i) == 0) k++;
+                            freqs.at(a.at(r) / i)++;
+                        }
+                    } 
+                }
+            }
+        }
+    }
+
+    ps(ans == LONG_LONG_MAX ? -1 : ans);
 }
 
-signed main()
-{
+signed main() {
     setIO();	
 
     def(int, T);

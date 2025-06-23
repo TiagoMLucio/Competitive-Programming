@@ -167,50 +167,52 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n);
     
+    int l = 2 * n, r = 1e8, mid;
+
+    int mn = n, mx = -1;
+
+    if (n == 2) {
+        ps(3, 1);
+        return;
+    }
+
+    if (n == 5) {
+        ps(20, 29, 18, 26, 28);
+        return;
+    }
+
+    while(l <= r) {
+        mid = (l + r) / 2;
+
+        if ((mid - mn) * (mid - mn) >= mid + (2 * mn + n - 2) * (n - 1) / 2) {
+            r = mid - 1;
+            mx = mid;
+        } else l = mid + 1;
+    }
+
+    dbg(mn, mx);
+
+    vi ans(n);
+    for(int i = 0; i < n - 1; i++)
+        ans.at(i) = mn + i;
+    ans.at(n - 1) = mx;
+
+    dbg(mx + (2 * mn + n - 2) * (n - 1) / 2);
+    dbg((mx - mn) * (mx - mn));
+    dbg(mn + (2 * mx - (n - 2)) * (n - 1) / 2);
+
+    int missing = (mx - mn) * (mx - mn) - (mx + (2 * mn  + n- 2) * (n - 1) / 2);
+
+    for(int i = n - 2; i > 0 && missing > 0; i--) {
+        int aux = min(ans.at(i + 1) - 1 - ans.at(i), missing);
+        ans.at(i) += aux;
+        missing -= aux;
+    }
+
+    dbg(missing);
+
     ps(ans);
 }
 

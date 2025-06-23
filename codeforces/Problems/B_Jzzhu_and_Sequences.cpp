@@ -167,58 +167,28 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, x, y, n);
 
-    int ans {0};
+    int z = y - x;
 
-    int neg = -1;
+    dbg(z);
 
-    int x = r;
+    int ans;
 
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
+    if (n % 3 == 0) ans = z;
+    else if (n % 3 == 1) ans = x;
+    else ans = y;
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    ans *= (n % 6 > 3 || n % 6 == 0) ? -1 : 1;
     
-    ps(ans);
+    ps((ans % MODN + MODN) % MODN);
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T {1};
     while (T--) {
         solve();
     }

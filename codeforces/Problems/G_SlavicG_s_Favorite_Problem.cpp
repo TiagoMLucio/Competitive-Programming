@@ -165,53 +165,69 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+int n, a, b;
+
+V<vii> adj;
+vb used;
+
+bool isPossible;
+
+void dfs1(int v, int x, map<int, int> &possible) {
+    used.at(v) = true;
+    
+    if(v != b)
+        possible[x]++;
+    else if (x == 0) {isPossible = true; return;}
+
+    for(auto [u, w] : adj.at(v))
+        if(!used.at(u))
+            dfs1(u, x ^ w, possible);
+}
+
+bool dfs2(int v, int x, map<int, int> &possible) {
+    dbg(v, x);
+    used.at(v) = true;
+
+    if(v != b && possible[x] > 0)
+        return true;
+
+    for(auto [u, w] : adj.at(v))
+        if(!used.at(u) && dfs2(u, x ^ w, possible)) 
+            return true;
+
+    return false;    
+}
+
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    re(n, a, b);  
+    adj.resize(1e5 + 10);
+    used.resize(1e5 + 10);
+    isPossible = false;
     
-    ps(ans);
+    for(int i = 1; i < n; i++) {
+        def(int, u, v, w);
+        adj.at(u).pb({v, w});
+        adj.at(v).pb({u, w});
+    }
+
+    map<int, int> possible;
+
+    dfs1(a, 0, possible);
+
+    if(isPossible) {
+        ps("YES");
+        return;
+    }
+
+    fill(all(used), 0);
+
+    dbg(possible);
+
+    ps(dfs2(b, 0, possible) ? "YES" : "NO");
+
+    adj.clear();
+    used.clear();
 }
 
 signed main()

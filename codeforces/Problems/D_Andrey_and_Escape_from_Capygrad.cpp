@@ -167,50 +167,53 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    viiii v(n);
+    re(v);
+    sor(v);
 
-    int ans {0};
+    int curL = get<0>(v.at(0)), curB = get<3>(v.at(0));
 
-    int neg = -1;
+    vii intervals;
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(int i = 1; i < n; i++) {
+        dbg(v.at(i), curL, curB);
+        auto [l, r, a, b] = v.at(i);
+        if (l <= curB) {
+            curB = max(curB, b);
+        } else {
+            intervals.pb({curL, curB});
+            curL = l; curB = b;
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
-    
+
+    intervals.pb({curL, curB});
+
+    dbg(intervals);
+
+    vi ans;
+
+    def(int, q);
+    while(q--) {
+        def(int, x);
+        
+        int l = 0, r  = sz(intervals)- 1, mid, cur = -1;
+
+        while(l <= r) {
+            mid = (l + r) / 2;
+            if (x < intervals.at(mid).f)
+                r = mid - 1;
+            else if (x > intervals.at(mid).s)
+                l = mid + 1;
+            else {
+                cur = intervals.at(mid).s;
+                break;
+            }
+        }
+
+        ans.pb(cur == -1 ? x : cur);
+    }
+
     ps(ans);
 }
 

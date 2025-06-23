@@ -167,51 +167,35 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi a(n), b(n);
+    re(a, b);
+    def(int, m);
+    vi x(m);
+    re(x);
 
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    map<int, int> freqs;
+    for(auto xi: x) freqs[xi]++;
     
-    ps(ans);
+    set<int> cur;
+
+    for(int i = 0; i < n; i++) {
+        if(b.at(i) > a.at(i)) {
+            ps("NO");
+            return;
+        }
+        dbg(cur, a.at(i), b.at(i));
+        while(!cur.empty() && b.at(i) > *cur.begin()) cur.erase(cur.begin());
+        if (a.at(i) == b.at(i) || cur.find(b.at(i)) != cur.end()) continue;
+        freqs[b.at(i)]--;
+        cur.insert(b.at(i));
+        if(freqs[b.at(i)] < 0) {
+            ps("NO");
+            return;
+        }
+    }
+
+    ps("YES");
 }
 
 signed main()

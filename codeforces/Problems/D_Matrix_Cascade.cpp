@@ -167,51 +167,57 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    
+    V<vi> grid(n, vi(n));
+
+    for(int i = 0; i < n; i++) {
+        def(str, s);
+        for(int j = 0; j < n; j++)
+            grid.at(i).at(j) = s.at(j) - '0';
+    }
+
+    V<vi> b(n, vi(n)), c(n, vi(n)), invs(n, vi(n + 1));
 
     int ans {0};
 
-    int neg = -1;
+    for(int i = 0; i < n; i++) {
+        if (i < n - 1) {
+            b.at(i + 1).at(0) += b.at(i).at(0);
+            for(int j = 0; j < n - 1; j++)
+                b.at(i + 1).at(j) += b.at(i).at(j + 1);
 
-    int x = r;
+            c.at(i + 1).at(n - 1) += c.at(i).at(n - 1);
+            for(int j = 1; j < n; j++)
+                c.at(i + 1).at(j) += c.at(i).at(j - 1);
+        }
 
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
+        dbgn('1', b, c);
         
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+        for(int j = 0; j < n; j++) {
+            if ((grid.at(i).at(j) + invs.at(i).at(j)) & 1) {
+                ans++;
+                if (i < n - 1) {
+                    b.at(i + 1).at(max(0LL, j - 1))++;
+
+                }
+            }
         }
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
+        dbgn('2', b, c);
 
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+        if (i < n - 1) {
+            for(int j = 0; j < n; j++) {
+                invs.at(i + 1).at(j) += b.at(i + 1).at(j);
+                invs.at(i + 1).at(j + 1) -= c.at(i + 1).at(j);
+            }
+            for(int j = 1; j < n; j++)
+                invs.at(i + 1).at(j) += invs.at(i + 1).at(j - 1);
+        } 
     }
-    
+
     ps(ans);
+
 }
 
 signed main()

@@ -167,51 +167,45 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    multiset<int> a, b;
 
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = 0; i < n; i++) {
+        def(int, ai); 
+        while(ai % 2 == 0) ai /= 2;
+        a.insert(ai);
     }
-    
-    ps(ans);
+
+    for(int i = 0; i < n; i++) {
+        def(int, bi); 
+        b.insert(bi);
+    }
+
+    dbg(a, b);    
+
+    for(auto bi: b) {
+        bool found = false;
+
+        while(bi > 0) {
+            auto it = a.find(bi);
+            if (it != a.end()) {
+                dbg(bi);
+                a.erase(it);
+                found = true;
+                break;
+            }
+            bi /= 2;
+        }
+
+        dbg(found);
+
+        if (!found) {
+            ps("NO");
+            return;
+        }
+    }
+
+    ps("YES");
 }
 
 signed main()

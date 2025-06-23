@@ -167,51 +167,64 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    vs grid(n);
+    re(grid);
 
-    int ans {0};
+    vi accLin(n), accCol(m);
 
-    int neg = -1;
+    vs ans(n, str(m, '.'));
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            char cel = grid.at(i).at(j);
+            if (cel == 'U') {
+                if (accLin.at(i) >= 0) {
+                    ans.at(i).at(j) = 'W';
+                    ans.at(i + 1).at(j) = 'B';
+                    accLin.at(i)--;
+                    accLin.at(i + 1)++;
+                } else {
+                    ans.at(i).at(j) = 'B';
+                    ans.at(i + 1).at(j) = 'W';
+                    accLin.at(i)++;
+                    accLin.at(i + 1)--;
+                }
+            }
         };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
-    
+
+    for(int j = 0; j < m; j++) {
+        for(int i = 0; i < n; i++) {
+            char cel = grid.at(i).at(j);
+            if (cel == 'L') {
+                if (accCol.at(j) >= 0) {
+                    ans.at(i).at(j) = 'W';
+                    ans.at(i).at(j + 1) = 'B';
+                    accCol.at(j)--;
+                    accCol.at(j + 1)++;
+                } else {
+                    ans.at(i).at(j) = 'B';
+                    ans.at(i).at(j + 1) = 'W';
+                    accCol.at(j)++;
+                    accCol.at(j + 1)--;
+                }
+            }
+        }    
+    }
+
+    bool yes = true;
+
+    for(auto acc: accLin)
+        if (acc != 0) yes = false;
+
+    for(auto acc: accCol)
+        if (acc != 0) yes = false;
+
+    if (!yes) {ps(-1); return;}
+
     ps(ans);
+
 }
 
 signed main()

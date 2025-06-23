@@ -34,7 +34,7 @@ using vd = V<double>;
 #define allr(x) (x).rbegin(), (x).rend()
 
 const int MODN = static_cast<int>(1e9+7);
-const int INF = 0x3f3f3f3f;
+const int INF = 0x3f3f3f3f3f3f3f3f;
 const int dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 
 inline namespace IO {
@@ -165,60 +165,63 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
 
-    int ans {0};
+    V<vii> adj(n + 1);
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    for(int i = 0; i < m; i++) {
+        def(int, ai, bi, wi);
+        adj.at(ai).pb({bi, wi});
+        adj.at(bi).pb({ai, wi});
     }
     
+    priority_queue<ii, vii, greater<ii>> pq;
+    pq.push({0, 1});
+    vi dist(n + 1, LONG_LONG_MAX);
+    vi predecessors(n + 1);
+
+    dist.at(1) = 0;
+
+    while(!pq.empty()) {
+        int v = pq.top().s; pq.pop();
+
+        for(auto [u, w]: adj.at(v)) 
+            if (dist.at(u) > dist.at(v) + w) {
+                dist.at(u) = dist.at(v) + w;
+                pq.push({dist.at(u), u});
+                predecessors.at(u) = v;
+            }
+
+    }
+
+    dbg(dist);
+
+    if (dist.at(n) == LONG_LONG_MAX) {
+        ps(-1);
+        return;
+    }
+
+    vi ans {n};
+
+    while(*ans.rbegin() != 1) {
+        ans.pb(predecessors.at(*ans.rbegin()));
+    }
+
+    reverse(all(ans));
+
     ps(ans);
+
+
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T{1};
     while (T--) {
         solve();
     }

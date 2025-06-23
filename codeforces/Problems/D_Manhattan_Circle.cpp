@@ -167,51 +167,22 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    V<str> grid(n);
+    re(grid);
 
-    int ans {0};
+    ii top {-1, -1}, bottom;
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            if (grid.at(i).at(j) == '#') {
+                if (top.f == -1) top = {i + 1, j + 1};
+                bottom = {i + 1, j + 1};
+            }
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
     
-    ps(ans);
+    ps(top.f + (bottom.f - top.f) / 2, top.s);
 }
 
 signed main()

@@ -167,51 +167,47 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, q);
     
+    int l = 1, r = LONG_LONG_MAX;
+
+    vi ans;
+
+    while(q--) {
+        def(int, type, a, b);
+
+        if (type == 1) {
+            def(int, n);
+
+            int l2, r2;
+
+            if (n == 1) {
+                l2 = 1; 
+                r2 = a;
+            } else {
+                l2 = (n - 2) * (a - b) + a + 1, 
+                r2 = (n - 1) * (a - b) + a;
+            }
+
+            if (l2 > r || r2 < l) {
+                ans.pb(0); continue;
+            } 
+
+            ans.pb(1);
+            l = max(l, l2);
+            r = min(r, r2);
+        } else {
+            int n1 = a >= l ? 1 : (l - b - 1) / (a - b) + 1;
+            int n2 = a >= r ? 1 : (r - b - 1) / (a - b) + 1;
+            
+            ans.pb(n1 == n2 ? n1 : -1);
+        }   
+
+        dbg(l, r);
+    }
+
     ps(ans);
+    
 }
 
 signed main()

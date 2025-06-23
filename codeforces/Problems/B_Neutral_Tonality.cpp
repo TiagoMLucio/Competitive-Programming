@@ -167,50 +167,35 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n, m);
+    vi a(n), b(m);
+    re(a, b);
     
+    int mn = LONG_LONG_MAX;
+
+    for(auto ai: a)
+        mn = min(mn, ai);
+
+    vi bMn, bRest;
+
+    sort(all(b), greater<int>());
+
+    for(auto bi: b) {
+        if (bi > mn) bRest.pb(bi);
+        else bMn.pb(bi);
+    }
+
+    vi ans; 
+
+    for(int i = 0, j = 0; i < sz(a) || j < sz(bRest);) {
+        if (i == sz(a) || (j < sz(bRest) && b.at(j) > a.at(i)))
+            ans.pb(b.at(j++));
+        else ans.pb(a.at(i++));
+    }
+
+    for(auto bMni: bMn)
+        ans.pb(bMni);
+
     ps(ans);
 }
 

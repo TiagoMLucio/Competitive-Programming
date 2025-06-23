@@ -167,51 +167,34 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi a(n);
+    re(a);
 
-    int ans {0};
+    map<int, int> freqs, cur;
+    for(auto ai: a) freqs[ai]++;
 
-    int neg = -1;
+    int mx = a.at(n - 1) + n, mxIdx = n - 1;
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(int i = n - 2; i >= 0; i--) {
+        if (a.at(i) + i + 1 == mx) {
+            a.at(mxIdx)--;
+            mxIdx = i;
+        } else if (a.at(i) + i + 1 > mx) {
+            mx = a.at(i);
+            mxIdx = i;
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
+
+    set<int> S;
+    for(int i = 0; i < n; i++)
+        S.insert(a.at(i) + i + 1);
     
-    ps(ans);
+    vi b;
+    for(auto si: S) b.pb(si);
+    sort(all(b), greater<int>());
+
+    ps(b);
 }
 
 signed main()

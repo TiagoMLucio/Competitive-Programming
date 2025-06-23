@@ -30,7 +30,7 @@ using vd = V<double>;
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
-#define sor(x) sort(all(x))
+#define sor(x) std::sort(all(x))
 #define allr(x) (x).rbegin(), (x).rend()
 
 const int MODN = static_cast<int>(1e9+7);
@@ -167,61 +167,104 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi aux(n);
+    re(aux);
 
-    int ans {0};
 
-    int neg = -1;
+    bool isSeq = true;
 
-    int x = r;
+    map<int, int> freqs;
+    for(auto ai: aux) freqs[ai]++;
 
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(auto freq: freqs) {
+        if (freq.f == 0 || freq.s != 1) {
+            isSeq = false; break;
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
-    
-    ps(ans);
+
+    vii a(n);
+    for(int i = 0; i < n; i++) 
+        a.at(i) = {aux.at(i), i + 1};
+    sort(all(a), greater<ii>());
+
+    if (n == 2 && a.at(0).f == 2 && a.at(1).f == 1) {
+        ps("NO");
+        return;
+    }
+
+    dbg(a);
+
+    ps("YES");
+
+    map<int, ii> coords;
+    map<int, int> ans;
+
+    int cur = a.at(0).s, last = cur;
+
+    coords[cur] = {1, 1};
+    ans[cur] = a.at(0).f == 0 ? a.at(0).s : a.at(1).s;
+
+    if(isSeq) {
+        if (n == 3) ans[cur] = a.at(2).s;
+
+        for(int i = 1; i <= n - 3; i++) {
+            cur = a.at(i).s;
+            coords[cur] = {i + 1, coords[last].s + (i % 2 == 1 ? 1 : -1) * (a.at(i - 1).f - 1)};
+            ans[cur] = a.at(i + 1).s;
+            last = cur;
+        }
+        ans[last] = a.at(n - 1).s;
+
+        cur = a.at(n - 2).s;
+        coords[cur] = {n - 1, coords[last].s + ((n - 2) % 2 == 1 ? 1 : -1)};
+        ans[cur] = last;
+        last = cur;
+
+        cur = a.at(n - 1).s;
+        coords[cur] = {n, coords[last].s};
+        ans[cur] = last;
+    } else {
+        bool isToNxt = true;
+
+        for(int i = 1; i < n; i++) {
+            dbg(i, coords, ans, isToNxt);
+            cur = a.at(i).s;
+            coords[cur] = {i + 1, coords[last].s + (i % 2 == 1 ? 1 : -1) * (a.at(i - 1).f == 0 ? 0 : ((isToNxt ? a.at(i - 1).f : a.at(i).f) - 1))};
+            if (a.at(i).f == a.at(i - 1).f) isToNxt = false;
+            ans[cur] = a.at(i).f == 0 ? a.at(i).s : (isToNxt ? a.at(i + 1).s : a.at(i - 1).s);
+            last = cur;
+            dbg(i, coords, ans, isToNxt);
+        } 
+    }
+
+    for(auto coord: coords)
+        ps(coord.s);
+
+    for(auto x: ans)
+        cout << x.s << " ";
+    cout << endl;    
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T{1};
     while (T--) {
         solve();
     }
 
     // dbg(time_elapsed());
 }
+
+/*
+8 0 0 0 0 0 0 0
+0 0 6 0 0 0 0 0
+0 0 0 0 4 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 2 1
+0 0 0 0 0 3 0 0
+0 0 0 5 0 0 0 0
+0 7 0 0 0 0 0 0
+*/

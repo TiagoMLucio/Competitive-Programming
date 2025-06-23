@@ -165,60 +165,124 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+const int MAXA = 3e5;
+
+vi min_prime(MAXA + 1, 0);
+
+void pre_calc() {
+    for (int i = 2; i <= MAXA; i++) {
+        if (!min_prime.at(i)) {
+            min_prime.at(i) = i;
+            for (int j = i * i; j <= MAXA; j += i)
+                min_prime.at(j) = min_prime.at(j) == 0 ? i : min(min_prime.at(j), i);
+        }
+    }
+}
+
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi a(n);
+    re(a);
+    def(int, s, t);
 
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    if (s == t) {
+        ps(1);
+        ps(s);
+        return;
     }
     
-    ps(ans);
+    set<int> nodes;
+    V<set<int>> adj(MAXA + 1);
+    map<ii, int> pos;
+
+    set<int> sDivs, tDivs;
+
+    for(int i = 0; i < n; i++) {
+        int ai = a.at(i);
+        set<int> divisors;
+        
+        while(ai != 1) {
+            divisors.insert(min_prime.at(ai));
+            ai /= min_prime.at(ai);
+        }
+
+        if (i + 1 == s) sDivs = divisors;
+        if (i + 1 == t) tDivs = divisors;
+        for(auto div: divisors) {
+            nodes.insert(div);
+            for(auto div2: divisors)
+                if (div2 != div) {
+                    adj.at(div).insert(div2);
+                    pos[{div, div2}] = i + 1;
+                }
+        }
+    }
+
+    dbg(sDivs, tDivs);
+    
+    vi dists(sz(adj) + 1, -1);
+    vb used(sz(adj) + 1, false);
+    vi pi(sz(adj) + 1, -1); 
+
+    int dist = -1;
+    vi ans;
+
+    for(auto sDiv: sDivs) {
+        dbg(sDiv);
+        queue<int> q;
+        q.push(sDiv);
+        dists.at(sDiv) = 0;
+        while(!q.empty()) {
+            int v = q.front(); q.pop();
+            used.at(v) = true;
+            dbg(v, adj.at(v));
+            for(auto u: adj.at(v)) {
+                if (!used.at(u) && dists.at(u) == -1) {
+                    dists.at(u) = dists.at(v) + 1;
+                    pi.at(u) = v;
+                    q.push(u);
+                }
+            }
+        }
+
+        int cur = -1, curDiv = -1;
+
+        for(auto tDiv: tDivs)
+            if (dists.at(tDiv) != -1 && (cur == -1 || dists.at(tDiv) < cur)) {
+                cur = dists.at(tDiv) + 1;
+                curDiv = tDiv;
+            }
+
+        if((dist == -1 && cur != -1)|| cur < dist) {
+            ans.clear();
+            dist = cur;
+            dbg(dist, curDiv);
+            ans.pb(t);
+            int vDiv = curDiv;
+            while(vDiv != sDiv) {
+                ans.pb(pos.at({vDiv, pi.at(vDiv)}));
+                vDiv = pi.at(vDiv);
+            }
+            ans.pb(s);
+        }
+    }
+
+    reverse(all(ans));
+
+    ps(dist != -1 ? dist + 1 : -1);
+    if(dist != -1)
+        ps(ans);
 }
 
 signed main()
 {
-    setIO();	
+    setIO();
 
-    def(int, T);
+    pre_calc();	
+    dbg(min_prime);
+
+    int T{1};
     while (T--) {
         solve();
     }

@@ -165,52 +165,29 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+const int SWITCH = 1e12;
+const int DELETE = 1e12 + 1;
+
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(str, s);
+    int n = sz(s);
     
+    int ans {LONG_LONG_MAX};
+
+    vi pref0(n + 1), suff1(n + 1);
+
+    for(int i = 0; i < n; i++) 
+        pref0.at(i + 1) = pref0.at(i) + (s.at(i) == '0' ? 1 : 0); 
+    for(int i = n - 1; i >= 0; i--)
+        suff1.at(i) = suff1.at(i + 1) + (s.at(i) == '1' ? 1 : 0);
+
+    for(int i = 0; i <= n; i++) {
+        ans = min(ans, (n - i - suff1.at(i) + i - pref0.at(i)) * DELETE);
+        if (i  - 1 >= 0 && i < n && s.at(i) == '0' && s.at(i - 1) == '1')
+            ans = min(ans, SWITCH + (n - i - 1 - suff1.at(i + 1) + i - 1 - pref0.at(i - 1)) * DELETE);
+    }
+
     ps(ans);
 }
 

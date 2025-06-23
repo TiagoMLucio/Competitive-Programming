@@ -167,50 +167,34 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, a, b);
+    def(int, xk, yk, xq, yq);
     
+    map<ii, int> possibleK;
+    map<ii, int> possibleQ;
+
+    possibleK[{xk + b, yk + a}]++;
+    possibleK[{xk + b, yk - a}]++;
+    possibleK[{xk - b, yk + a}]++;
+    possibleK[{xk - b, yk - a}]++;
+    possibleK[{xk + a, yk + b}]++;
+    possibleK[{xk + a, yk - b}]++;
+    possibleK[{xk - a, yk + b}]++;
+    possibleK[{xk - a, yk - b}]++;
+
+    possibleQ[{xq + b, yq + a}]++;
+    possibleQ[{xq + b, yq - a}]++;
+    possibleQ[{xq - b, yq + a}]++;
+    possibleQ[{xq - b, yq - a}]++;
+    possibleQ[{xq + a, yq + b}]++;
+    possibleQ[{xq + a, yq - b}]++;
+    possibleQ[{xq - a, yq + b}]++;
+    possibleQ[{xq - a, yq - b}]++;
+    
+    int ans {0};
+    for(auto p: possibleK) 
+        if(possibleQ[p.f] > 0) ans++;
+
     ps(ans);
 }
 

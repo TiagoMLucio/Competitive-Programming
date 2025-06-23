@@ -165,58 +165,62 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+vb is_prime(101, true);
+vi primes;
+
+void pre_calc() {
+    is_prime[0] = false; 
+    is_prime[1] = false;
+    for (int i = 2; i <= 101; i++) {
+        if (is_prime[i]) {
+            for (int j = i * i; j <= 101; j += i)
+                is_prime[j] = false;
+        }
+    }
+    for(int i = 2; i < 101; i++)
+        if(is_prime[i])
+            primes.pb(i);
+}
+
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi a(n);
+    re(a);
 
-    int ans {0};
+    map<int, int> freqs;
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+    for(auto ai: a) freqs[ai]++;
+    for(auto freq: freqs)
+        if(freq.s > 1) {
+            ps("NO");
+            return;
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
     
-    ps(ans);
+    V<set<int>> rests(101);
+
+    dbg(primes);
+
+    for(int i = 0; i < n; i++) for(int j = i + 1; j < n; j++)
+        for(auto p: primes) if (a.at(i) % p == a.at(j) % p)
+            rests.at(p).insert(p - (a.at(i) % p));
+
+    dbg(rests);
+
+    for(int i = 2; i < 101; i++)
+        if (sz(rests.at(i)) == i) {
+            ps("NO");
+            return;
+        }
+    
+    ps("YES");
 }
 
 signed main()
 {
-    setIO();	
+    setIO();
+
+    pre_calc();	
 
     def(int, T);
     while (T--) {

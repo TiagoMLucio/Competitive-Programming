@@ -167,51 +167,49 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n, m);
+    V<vi> a(n, vi(m));
+    re(a);
     
+    int l = 1, r = n, mid;
+
+    int ans = 0;
+
+    while(l <= r) {
+        mid = (l + r) / 2;
+
+        dbg(l, mid, r);
+
+        bool can = false;
+
+        V<vi> prefsum(n + 1, vi(m + 1));
+
+        for(int i = 1; i <= n; i++)
+            for(int j = 1; j <= m; j++)
+                prefsum.at(i).at(j) = (a.at(i - 1).at(j - 1) >= mid ? 1 : 0) 
+                    + prefsum.at(i - 1).at(j) 
+                    + prefsum.at(i).at(j - 1) 
+                    - prefsum.at(i - 1).at(j - 1);
+
+        dbgn(prefsum);
+        
+        for(int i = mid; i <= n; i++)
+            for(int j = mid; j <= m; j++)
+                if (prefsum.at(i).at(j) - prefsum.at(i - mid).at(j) - prefsum.at(i).at(j - mid) + prefsum.at(i - mid).at(j - mid) == mid * mid) {
+                    can = true;
+                    dbg(i, j);
+                    goto check;
+                }                                                                        
+
+        check:
+        if (can) {
+            l = mid + 1;
+            ans = mid;
+        } else r = mid - 1;
+    }
+
     ps(ans);
+    
 }
 
 signed main()

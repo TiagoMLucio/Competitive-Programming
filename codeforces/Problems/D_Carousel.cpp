@@ -167,50 +167,47 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n);
+    vi v(n);
+    re(v);
+    
+    vi ans(n);
 
-    int ans {0};
+    int last {v.at(0)};
+    ans.at(0) = 1;
 
-    int neg = -1;
+    bool atLeast2 = false;
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
+    for(int i = 1; i < n; i++) {
+        if (v.at(i) == v.at(i - 1)) {
+            ans.at(i) = ans.at(i - 1);
             continue;
         }
 
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
+        atLeast2 = true;
 
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+        last = v.at(i);
+        ans.at(i) = ans.at(i - 1) == 1 ? 2 : 1;
     }
     
+    int qnt {0};
+
+    if (v.at(n - 1) == v.at(0)) {
+        qnt = atLeast2 ? 2 : 1;
+    } else {
+        if (ans.at(n - 1) == ans.at(0)) {
+            qnt = 3;
+            last = v.at(n - 1);
+            int i = n - 2;
+            ans.at(n - 1) = 3;
+            while(i >= 0 && v.at(i) == last)
+                ans.at(i--) = 3;
+        } else qnt = 2;
+    }
+
+    ps(qnt);
+
+
     ps(ans);
 }
 

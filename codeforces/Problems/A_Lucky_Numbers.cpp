@@ -167,51 +167,38 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, l, r);
     
-    ps(ans);
+    if (r - l >= 100) {
+        while(l % 100 != 90) {
+            l++;
+        }
+        ps(l);
+    } else {
+        int ans = l, cur = 0;
+        int aux = l, bg = -1, lw = 10;
+        while(aux > 0) {
+            bg = max(aux % 10, bg);
+            lw = min(aux % 10, lw);
+            aux /= 10;
+        }
+        cur = bg - lw;
+        dbg(ans, cur);
+        for(int i = l + 1; i <= r; i++) {
+            aux = i, bg = -1, lw = 10;
+            while(aux > 0) {
+                bg = max(aux % 10, bg);
+                lw = min(aux % 10, lw);
+                aux /= 10;
+            }
+            dbg(i, bg - lw);
+            if (bg - lw > cur) {
+                cur = bg - lw;
+                ans = i;
+            }
+        }
+        ps(ans);
+    }
 }
 
 signed main()

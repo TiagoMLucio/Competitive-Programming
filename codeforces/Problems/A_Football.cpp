@@ -167,24 +167,25 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(str, s);
+    def(int, n);
+    vs v(n);
+    re(v);
+
+    dbg(v);
+
+    map<str, int> freqs;
+    for(auto s: v) freqs[s]++;
+
+    str winner;
+    int goals {0};
+    for(auto freq: freqs)
+        if (freq.s > goals) {
+            goals = freq.s;
+            winner = freq.f;
+        }
+
+    ps(winner);
     
-    char last {0}, qnt {0};
-
-    for(auto c: s)
-        if (c == last) {
-            qnt++;
-            if (qnt == 7) {
-                ps("YES");
-                return;
-            }
-        }
-        else {
-            qnt = 1;
-            last = c;
-        }
-
-    ps("NO");
 }
 
 signed main()

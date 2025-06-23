@@ -167,51 +167,42 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, n, m);
+    V<vi> a(n, vi(m)), mn(n, vi(m)), mx(n, vi(m)); 
+    re(a);
 
-    int ans {0};
+    dbg(a);
 
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
+    if ((n + m) % 2 == 0) {
+        ps("NO");
+        return;
     }
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            if (i != 0 || j != 0) {
+                mn.at(i).at(j) = min(
+                    (j > 0) ? mn.at(i).at(j - 1) : LONG_LONG_MAX, 
+                    (i > 0) ? mn.at(i - 1).at(j) : LONG_LONG_MAX
+                );
+                mx.at(i).at(j) = max(
+                    (j > 0) ? mx.at(i).at(j - 1) : LONG_LONG_MIN, 
+                    (i > 0) ? mx.at(i - 1).at(j) : LONG_LONG_MIN
+                );
+            }
+            mn.at(i).at(j) += a.at(i).at(j);
+            mx.at(i).at(j) += a.at(i).at(j);
+        }
+    }
+
+    dbg(n, m, mx.at(n - 1).at(m - 1), mn.at(n - 1).at(m - 1));
     
-    ps(ans);
+    if (mx.at(n - 1).at(m - 1) >= 0 && mn.at(n - 1).at(m - 1) <= 0) {
+        ps("YES");
+        return;
+    }
+
+    ps("NO");
 }
 
 signed main()

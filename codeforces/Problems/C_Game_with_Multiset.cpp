@@ -167,58 +167,42 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
+    def(int, m);
 
-    int ans {0};
+    vi bits(32);
 
-    int neg = -1;
+    map<int, int> freqs;
 
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
+    while(m--) {
+        def(int, ti, v);
+        dbg(m, ti, v);
         
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
+        dbg(bits);
+        
+        if (ti == 1) {
+            freqs[v]++;
+            
+            bits.at(v) = 1;
+        } else {
+            bool works = true;
+            for(int i = 31; i >= 0; i--) {
+                if (((v >> i) & 1) && !bits.at(v)) {
+                    works = false;
+                    break;
+                }
+            }
+            ps(works ? "YES" : "NO");
         }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
     }
     
-    ps(ans);
+    
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T {1};
     while (T--) {
         solve();
     }

@@ -107,7 +107,7 @@ template <class... Ts> void pr(Ts const &...ts) {
     Writer<cout, false, true>{}.print(ts...);
 }
 template <class... Ts> void ps(Ts const &...ts) {
-    Writer<cout, false, true>{}.print_with_sep(" ", ts...);
+    Writer<cout, false, true>{}.print_with_sep("\n", ts...);
 }
 }  // namespace IO
  
@@ -165,58 +165,36 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
+V<vs> v(100);
+
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n);
     
-    ps(ans);
+    ps(v.at(n));
 }
 
 signed main()
 {
-    setIO();	
+    setIO();
+
+    vs first {"169", "196", "961"};
+
+    v.at(1).pb("1");
+    v.at(3) = first;
+    for(int i = 5; i < 100; i++) {
+        if (i % 2 == 0) continue;
+        vs aux;
+        for(auto x: v.at(i - 2))
+            aux.pb(x + "00");
+        
+        str zeros(i / 2 - 1, '0');
+
+        aux.pb("1" + zeros + "6" + zeros + "9");
+        aux.pb("9" + zeros + "6" + zeros + "1");
+
+        v.at(i) = aux;
+    }
 
     def(int, T);
     while (T--) {

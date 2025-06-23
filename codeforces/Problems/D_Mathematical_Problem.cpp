@@ -166,51 +166,35 @@ void setIO(str s = "") {
 }  // namespace FileIO
 
 void solve()
-{
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+{   
+    def(int, n);
+    def(str, s);
     
+    int ans {LONG_LONG_MAX};
+
+    for(int i = 0; i < n - 1; i++) {
+        vi v;
+        for(int j = 0; j < n; j++) {
+            if (j == i) {
+                v.pb((s.at(j) - '0') * 10 + (s.at(j + 1) - '0')); j++;
+            }
+            else v.pb(s.at(j) - '0'); 
+        }
+        
+        dbg(v);
+
+        int cur = 0;
+
+        for(auto x: v) {
+            if (x == 0) {
+                ans = 0; goto end;
+            } else if (x != 1) cur += x;
+        }
+
+        ans = min(cur == 0 ? 1 : cur, ans);
+    }
+
+    end:
     ps(ans);
 }
 

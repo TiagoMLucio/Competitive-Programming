@@ -167,51 +167,38 @@ void setIO(str s = "") {
 
 void solve()
 {
-    def(int, a, b, r);
-
-    int ans {0};
-
-    int neg = -1;
-
-    int x = r;
-
-    for(int i = 63; i >= 0; i--) {
-        int ai = (a >> i) & 1LL, bi = (b >> i) & 1LL;
-        // xi não influencia se o ai xor bi = 0
-        dbg(i, ai, bi);
-        if (!(ai xor bi)) continue;
-        
-        // na primeira vez diferente, salvar neg
-        if (neg == -1) {
-            neg = ai > bi; 
-            ans += (1LL << i); 
-            dbg(i, neg, ans);
-            continue;
-        }
-
-        // ta na ordem certa
-        if ((neg == 0) ^ (bi > ai)) {
-            ans -= (1LL << i);
-            dbg(i, "ordem certa", ans);
-            continue;
-        };
-
-        // === ta na ordem errada ===
-
-        // x não consegue alterar o bit
-        if (x < (1LL << i)) {
-            ans += (1LL << i);
-            dbg(i, x, (1LL << i), ans);
-            continue;
-        }
-
-        // x consegue alterar o bit
-        x -= (1LL << i);
-        ans -= (1LL << i);
-        dbg(i, x, (1LL << i), ans);
-    }
+    def(int, n, q);
+    def(str, a, b);
     
-    ps(ans);
+    V<vi> prefA(n + 1, vi(26)), prefB(n + 1, vi(26));
+
+    for(int i = 1; i <= n; i++) {
+        for(int j = 0; j < 26; j++) {
+            prefA.at(i).at(j) = prefA.at(i - 1).at(j);
+        }
+        prefA.at(i).at(a.at(i - 1) - 'a')++;
+    }
+
+    for(int i = 1; i <= n; i++) {
+        for(int j = 0; j < 26; j++) {
+            prefB.at(i).at(j) = prefB.at(i - 1).at(j);
+        }
+        prefB.at(i).at(b.at(i - 1) - 'a')++;
+    }
+
+    while(q--) {
+        def(int, l, r);
+
+        int ans {0};
+
+        for(int i = 0; i < 26; i++) {
+            int afreqi = prefA.at(r).at(i) - prefA.at(l - 1).at(i);
+            int bfreqi = prefB.at(r).at(i) - prefB.at(l - 1).at(i); 
+            ans += abs(afreqi - bfreqi); 
+        }
+        
+        ps(ans / 2);
+    }
 }
 
 signed main()
