@@ -165,50 +165,36 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n, m);
+    V<vi> grid(n, vi(m));
+    re(grid);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    if (n == 1 && m == 1) {
+        ps(-1);
+        return;
     }
+
+    V<vi> ans(n, vi(m));
+
+    if(m > 1) {
+
+    for(int i = 0; i < n; i++) {
+        ans.at(i).at(0) = grid.at(i).at(m - 1);
+        for(int j = 0; j < m - 1; j++)
+            ans.at(i).at(j + 1) = grid.at(i).at(j);
+    }
+    } else {
+    for(int i = 0; i < m; i++) {
+        ans.at(0).at(i) = grid.at(n - 1).at(i);
+        for(int j = 0; j < n - 1; j++)
+            ans.at(j + 1).at(i) = grid.at(j).at(i);
+    } 
+    }
+
+    ps(ans);
     
-    ps(res);
-    memo.clear();
 }
 
 signed main()

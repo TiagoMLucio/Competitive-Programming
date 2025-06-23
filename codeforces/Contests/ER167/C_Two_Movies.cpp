@@ -165,50 +165,40 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
-
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    def(int, n);
+    vi a(n), b(n);
+    re(a, b);
     
-    ps(res);
-    memo.clear();
+    int m1 = 0, m2 = 0, cnt11 = 0, cntm1m1 = 0;
+
+    for(int i = 0; i < n; i++) {
+        if (a.at(i) == 1 && b.at(i) == 1) cnt11++;
+        else if (a.at(i) == -1 && b.at(i) == -1) cntm1m1++;
+        else if (a.at(i) > b.at(i)) m1 += a.at(i);
+        else m2 += b.at(i);
+    }
+
+    dbg(m1, m2, cnt11, cntm1m1);
+
+    if(m1 > m2) swap(m1, m2);
+
+    if (m1 + cnt11 <= m2) {
+        m1 += cnt11;
+        if (m2 - cntm1m1 >= m1) {
+            ps(m1); return;
+        } else {
+            cntm1m1 -= m2 - m1;
+            ps(m1 - (cntm1m1 + 1) / 2); return;
+        }
+    } else {
+        cnt11 -= m2 - m1;
+        m1 = m2;
+        m1 += (cnt11 + 1) / 2; m2 += (cnt11) / 2;
+        m1 -= (cntm1m1 + 1) / 2; m2 -= (cntm1m1) / 2;
+        ps(min(m1, m2));
+    }
 }
 
 signed main()

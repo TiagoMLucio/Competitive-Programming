@@ -165,57 +165,86 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
+const int MAXA = 1e6;
 
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n, m);
+    vi a(n), b(n), c(m);
+    re(a, b, c);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    vii v(n);
+    for(int i = 0; i < n; i++) {
+        v.at(i) = {a.at(i), b.at(i)};
     }
+    sor(v);
+
+    dbg(v);
     
-    ps(res);
-    memo.clear();
+    vii pref(n + 1);
+    pref.at(0) = {-1, LONG_LONG_MAX};
+    for(int i = 0; i < n; i++) {
+        if (v.at(i).f - v.at(i).s < pref.at(i).s) {
+            pref.at(i + 1) = {v.at(i).f, v.at(i).f - v.at(i).s};
+        } else pref.at(i + 1) = pref.at(i);
+    }
+
+    dbg(pref);
+
+    vi xp(MAXA + 1);
+
+    for(int i = 1; i <= MAXA; i++) {
+        int l = 0, r = n - 1, mid, pos = -1;
+        while(l <= r) {
+            mid = (l + r) / 2;
+            if (v.at(mid).f > i) r = mid - 1;
+            else {
+                l = mid + 1;
+                pos = mid;
+            }
+        }
+
+        if (pos == -1) continue;
+
+        auto [ai, ri] = pref.at(pos + 1);
+
+        int qnt = (i - ai) / ri + 1;
+        int newC = i - qnt * ri;
+        xp.at(i) = 2 * qnt + xp.at(newC);
+    }
+
+    dbg(xp);
+
+    int ans = 0;
+
+    for(int i = 0; i < m; i++) {
+        int l = 0, r = n - 1, mid, pos = -1;
+        while(l <= r) {
+            mid = (l + r) / 2;
+            if (v.at(mid).f > c.at(i)) r = mid - 1;
+            else {
+                l = mid + 1;
+                pos = mid;
+            }
+        }
+
+        if (pos == -1) continue;
+        
+        auto [ai, ri] = pref.at(pos + 1);
+        int qnt = (c.at(i) - ai) / ri + 1;
+        int newC = c.at(i) - qnt * ri;
+
+        ans += 2 * qnt + xp.at(newC);
+    }
+
+    ps(ans);
 }
 
 signed main()
 {
     setIO();	
 
-    def(int, T);
+    int T{1};
     while (T--) {
         solve();
     }

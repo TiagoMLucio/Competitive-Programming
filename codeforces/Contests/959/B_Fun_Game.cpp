@@ -165,50 +165,33 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    def(str, s, t);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    if (s.at(0) == '1') {
+        ps("YES");
+        return;
     }
     
-    ps(res);
-    memo.clear();
+    int first = 0;
+
+    for(auto si: s) 
+        if (si == '0') first++;
+        else 
+    
+    dbg(first);
+    
+    for(int i = 0; i < n; i++) {
+        if (s.at(i) != t.at(i) && i < first) {
+            dbg(i);
+            ps("NO");
+            return;
+        } 
+    }
+
+    ps("YES");
 }
 
 signed main()

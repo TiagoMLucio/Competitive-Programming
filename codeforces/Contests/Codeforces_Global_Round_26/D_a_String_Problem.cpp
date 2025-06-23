@@ -165,50 +165,105 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(str, s);
+    int n = sz(s);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    vi freqs(26);
     
-    ps(res);
-    memo.clear();
+    for(auto c: s) freqs[c - 'a']++;
+
+    char first = 'a';
+    for(int i = 1; i < 26; i++) {
+        if(freqs.at(i) > 0) {
+            first = 'a' + i;
+            break;
+        }
+    }
+
+    if(first == 'a') {
+        ps(n - 1);
+        return;
+    }
+
+    int g = 0;
+    for(int i = 1; i < 26; i++)
+        g = gcd(g, freqs.at(i));
+
+    set<int> qntT {1, g};
+
+    for(int i = 2; i * i <= g; i++) {
+        if (g % i == 0) {
+            qntT.insert(i);
+            qntT.insert(g / i);
+        }
+    }
+
+    int ans {0};
+
+    dbg(qntT);
+
+    for(auto ti: qntT) {
+        str t;
+        vi curFreq(26);
+
+        bool foundFirst = false;
+
+        set<int> possibleT;
+
+        for(int i = 0; i < n; i++) {
+            if (s.at(i) == 'a' && foundFirst) t += s.at(i);
+            if(s.at(i) != 'a') {
+                foundFirst = true;
+                t += s.at(i);
+                curFreq.at(s.at(i) - 'a')++;
+                for(int j = 1; j < 26; j++) {
+                    if (curFreq.at(j) > freqs.at(j) / ti) goto nxtt;
+                    else if (curFreq.at(j) < freqs.at(j) / ti) goto nxtai;
+                }
+                break;
+            }
+
+            nxtai:
+            continue;
+        }
+        if(false) {
+            nxtt:
+            continue;
+        }
+
+        int abefore, aafter, abetween = LONG_LONG_MAX;
+
+        int count = 0;
+        size_t pos = s.find(t);
+        abefore = pos;
+
+        while (pos != string::npos) {
+            count++;
+            aafter = n - pos - t.length();
+            size_t newPos = s.find(t, pos + t.length());
+            if (newPos != string::npos)
+                abetween = min(abetween, static_cast<int>(newPos - pos - t.length()));
+            pos = newPos;
+        }
+
+        if(count != ti) continue;
+
+        abefore = max(0LL, abefore);
+        aafter = max(0LL, aafter);
+        abetween = abetween == LONG_LONG_MAX ? 0 : abetween;
+
+        dbg(ti, t, abefore, abetween, aafter);
+
+        if (ti == 1)
+            ans += (1 + abefore) * (1 + aafter); 
+        else for(int i = 0; i <= min(abefore, abetween); i++)
+            ans += 1 + min(aafter, abetween - i);
+        
+    }
+
+    ps(ans);
 }
 
 signed main()

@@ -165,50 +165,58 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    vi a(n);
+    re(a);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    map<int, int> aux;
+    for(auto ai: a) aux[ai]++;
+
+    vi freqs;
+    for(auto freq: aux) freqs.pb(freq.s);
+
+    dbg(freqs);
+
+    n = sz(freqs);
+
+    V<vi> dp(n + 1, vi(n + 1, LONG_LONG_MAX));
+    for(int i = 0; i <= n; i++) {
+        dp.at(i).at(n) = n - i;
     }
-    
-    ps(res);
-    memo.clear();
+    for(int j = 0; j <= n; j++) {
+        dp.at(n).at(j) = 0;
+        dp.at(n - 1).at(j) = 1;
+    }
+
+    for(int i = n - 2; i >= 0; i--) {
+        for(int j = n - 1; j >= i + 1; j--) {
+            dbg(i, j);
+            if (freqs.at(j) > j - i) {
+                dbg(i, j, '1', dp.at(i).at(j + 1));
+                dp.at(i).at(j) = dp.at(i).at(j + 1);
+            }
+            else if (i + freqs.at(j) < j) {
+                dbg(i, j, '2', freqs.at(j), dp.at(i + 1 + freqs.at(j)).at(j + 1));
+                dp.at(i).at(j) = freqs.at(j) + dp.at(i + 1 + freqs.at(j)).at(j + 1);
+            }
+            else {
+                dbg(i, j, '3', freqs.at(j), (j + 2 <= n ? dp.at(j + 1).at(j + 2) : 0));
+                dp.at(i).at(j) = freqs.at(j) + (j + 2 <= n ? dp.at(j + 1).at(j + 2) : 0);
+            }  
+            dp.at(i).at(j) = min(dp.at(i).at(j), dp.at(i).at(j + 1));
+        }
+    }
+
+    dbg(dp);
+
+    int ans {LONG_LONG_MAX};
+    for(int j = 0; j <= n; j++) {
+        ans = min(ans, dp.at(0).at(j));
+    }
+
+    ps(ans);
 }
 
 signed main()

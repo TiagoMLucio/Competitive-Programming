@@ -165,50 +165,39 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    vi aux(n);
+    re(aux);
+    vii a(n);
+    for(int i = 0; i < n; i++)
+        a.at(i) = {i + 1, aux.at(i)};
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+
+    vii pairs(n);
+    vi used(n);
+
+    for(int x = n - 1; x >= 1; x--) {
+        map<int, vii> amodx;
+        for(auto [pos, val]: a) 
+            if(!used.at(pos - 1)) amodx[val % x].pb({pos, val});
+
+        dbg(x, amodx);
+
+        for(auto y: amodx)
+            if (sz(y.s) > 1) {
+                pairs.at(x) = {y.s.at(0).f, y.s.at(1).f};
+                used.at(y.s.at(0).f - 1) = true;
+                used.at(y.s.at(1).f - 1) = true;
+                break;
+            }
     }
+
+    ps("YES");
+    for(int i = 1; i < n; i++)
+        ps(pairs.at(i));
     
-    ps(res);
-    memo.clear();
 }
 
 signed main()

@@ -165,50 +165,39 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
+bool hasZero(int x) {
+    while(x > 0) {
+        if (x % 10 == 0) return true;
+        x /= 10;
     }
 
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
+    return false;
 }
 
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
-
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    def(int, x);
     
-    ps(res);
-    memo.clear();
+    int min = 0, max = 0;
+
+    int pow10 = 1, aux = x;
+
+    while (aux > 9) {
+        min += 5 * pow10;
+        max += 9 * pow10;
+        pow10 *= 10;
+        aux /= 10;
+    }
+
+    min *= 2;
+    max *= 2;
+
+    if (x < min || x > max || x % 10 == 9 || hasZero(x / 10)) {
+        ps("NO");
+        return;
+    } 
+
+    ps("YES");
 }
 
 signed main()

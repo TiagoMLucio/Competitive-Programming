@@ -165,50 +165,54 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n, m);
+    V<str> a_aux(n), b_aux(n);
+    re(a_aux, b_aux);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    V<vi> a(n, vi(m)), b(n, vi(m));
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            a.at(i).at(j) = a_aux.at(i).at(j) - '0';
+            b.at(i).at(j) = b_aux.at(i).at(j) - '0';
+        }
     }
+
+    dbg(a);
+    dbg(b);
+
+    for(int i = 1; i < n; i++) {
+        for(int j = 1; j < m; j++) {
+            int cur = (b.at(i).at(j) - a.at(i).at(j) + 3) % 3;
+            if (cur == 0) continue;
+            else if (cur == 1) {
+                a.at(0).at(0) = (a.at(0).at(0) + 1) % 3;
+                a.at(i).at(j) = (a.at(i).at(j) + 1) % 3;
+                a.at(0).at(j) = (a.at(0).at(j) + 2) % 3;
+                a.at(i).at(0) = (a.at(i).at(0) + 2) % 3;
+            } else {
+                a.at(0).at(0) = (a.at(0).at(0) + 2) % 3;
+                a.at(i).at(j) = (a.at(i).at(j) + 2) % 3;
+                a.at(0).at(j) = (a.at(0).at(j) + 1) % 3;
+                a.at(i).at(0) = (a.at(i).at(0) + 1) % 3;
+            } 
+        }
+    }
+
+    bool yes = true;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if (a.at(i).at(j) != b.at(i).at(j)) {
+                yes = false;
+                goto end;
+            }
+
+    end:
+    ps(yes ? "YES" : "NO");
+        
     
-    ps(res);
-    memo.clear();
 }
 
 signed main()

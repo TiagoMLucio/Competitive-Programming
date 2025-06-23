@@ -165,50 +165,52 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
-
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    def(int, n, c);
+    vi a(n);
+    re(a);
     
-    ps(res);
-    memo.clear();
+    set<ii> vals, pos;
+
+    vals.insert({a.at(0) + c, n - 1});
+    pos.insert({0, a.at(0) + c});
+
+    for(int i = 1; i < n; i++) {
+        vals.insert({a.at(i), n - 1 - i});
+        pos.insert({i, a.at(i)});
+    }
+
+    vi ans(n, n + 1);
+
+    for(int i = 0; i < n; i++) {
+        ii top = *--vals.end();
+        dbg(top, vals, pos);
+        ans.at(n - 1 - top.s) = i;
+        vals.erase(--vals.end());
+        pos.erase({n - 1 - top.s, top.f});
+
+        if (vals.empty()) break;
+
+        ii mn = *pos.begin();
+        pos.erase(pos.begin());
+        vals.erase({mn.s, n - 1 - mn.f});
+        
+        ii nw = {mn.s + top.f, mn.f};
+        pos.insert({nw.s, nw.f});
+        vals.insert({nw.f, n - 1 - nw.s});
+    }
+
+    int acc {a.at(0) + c}, mx = {0};
+    for(auto ai: a) mx = max(ai, mx);
+
+    for(int i = 1; i < n; i++) {
+        acc += a.at(i);
+        if (acc >= mx) ans.at(i) = min(ans.at(i), i);
+    }
+
+    ps(ans);
+
 }
 
 signed main()

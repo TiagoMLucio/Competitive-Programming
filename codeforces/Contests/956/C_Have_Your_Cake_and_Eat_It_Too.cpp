@@ -165,50 +165,62 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    V<vi> abc(3, vi(n));
+    re(abc);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    dbg(abc);
     
-    ps(res);
-    memo.clear();
+    int tot = 0;
+    for(auto ai: abc.at(0)) tot += ai;
+
+    vi order {0, 1, 2};
+
+    int lb = (tot + 2) / 3;
+
+    do {
+        int qnt1 = 0, qnt2 = 0, qnt3 = 0;
+        int i = 0;
+        vii ans(3);
+
+        int start = 0;
+        int cur = order.at(0);
+        dbg(cur);
+        while(i < n && qnt1 < lb) {
+            dbg(i, qnt1, lb);
+            qnt1 += abc.at(cur).at(i++);
+        }
+        if (i == n) continue;
+        ans.at(cur) = {start + 1, i};
+        
+        start = i;
+        cur = order.at(1);
+        dbg(cur);
+        while(i < n && qnt2 < lb) {
+            qnt2 += abc.at(cur).at(i++);
+        }
+        if (i == n) continue;
+        ans.at(cur) = {start + 1, i};
+
+        start = i;
+        cur = order.at(2);
+        dbg(cur);
+        while(i < n && qnt3 < lb) {
+            qnt3 += abc.at(cur).at(i++);
+        }
+        ans.at(cur) = {start + 1, n};
+
+        if (qnt1 >= lb && qnt2 >= lb && qnt3 >= lb) {
+            for(auto [l, r]: ans)
+                cout << l << " " << r << " ";
+            cout << endl;
+            return;
+        }
+    } while(next_permutation(all(order)));
+
+    ps(-1);
 }
 
 signed main()

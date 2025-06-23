@@ -165,50 +165,89 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n, k);
+    def(str, s);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
+    char cur = s.at(0);
+
+    int i = 0;
+
+    while(i < n) {
+        bool works = true;
+        
+        if (s.at(i) != cur) {
+            i -= k;
+            break;
+        }
+
+        for(int j = 0; j < k; j++) {
+            if (s.at(j + i) != cur) {
+                works = false;
+                break;
+            }
+        }
+
+        if(works) {
+            i += k;
+            cur = cur == '1' ? '0' : '1';
+        } else break;
     }
+
+    int r1 = i;
+
+    if (r1 == n) {
+        ps(n);
+        return;
+    }
+
+    str s1(k, '1'), s0(k, '0');
+
+    int p1 = s.substr(r1 + 1).find(s1);
+    int p0 = s.substr(r1 + 1).find(s0);
+
+    int p;
+
+    if (p1 != -1 && p0 != -1) p = min(p1, p0);
+    else if (p1 != -1 && p0 == -1) p = p1;
+    else if (p1 == -1 && p0 != -1) p = p0;
+    else {
+        ps(-1);
+        return;
+    };
+
+    p += r1 + 1;
+
+    int r2 = n - (k - (p - r1));
+
+    if (r2 <= 1) {
+        ps(-1); return;
+    }
+
+    dbg(r1, p, r2);
+
+    bool same = true;
     
-    ps(res);
-    memo.clear();
+    if (r1 >= 1 && s.at(r1 - 1) != s.at(r2 - 1)) {
+        ps(-1);
+        return;
+    }
+
+    for(int j = r1; j < p; j++) 
+        if (s.at(j) == s.at(r2 - 1)) {
+            same = false;
+            break;
+        }
+    for(int j = r2; j < n; j++)
+        if (s.at(j) == s.at(r2 - 1)) {
+            same = false;
+            break;
+        }
+
+    if (same) ps(p);
+    else ps(-1);
+
 }
 
 signed main()

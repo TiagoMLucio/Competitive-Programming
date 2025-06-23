@@ -34,7 +34,7 @@ using vd = V<double>;
 #define allr(x) (x).rbegin(), (x).rend()
 
 const int MODN = static_cast<int>(1e9+7);
-const int INF = 0x3f3f3f3f;
+const int INF = 1e9 * 10000 * 10;
 const int dx[4]{1,0,-1,0}, dy[4]{0,1,0,-1}; // for every grid problem!!
 
 inline namespace IO {
@@ -165,50 +165,69 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
+V<vi> adj;
+vi a;
 
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
+int dfs(int v, int p, map<int, int> & costs) {
+    dbg(v, costs);
+    if (sz(adj.at(v)) == 1 && p != -1) {
+        costs[1] = INF;
+        return 0;
     }
 
-    if(diff != 0) return memo[{i, x}] = 0;
+    int cur {0}, sum {0};
+    map<int, int>  curCosts;
 
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
+    for(auto u: adj.at(v))
+        if (u != p) {
+            cur += dfs(u, v, curCosts);
+            sum += a.at(u);
+        }
+    
+    if (a.at(v) <= sum)
+        costs[1] +=  sum - a.at(v); 
+    else {
+        int diff = a.at(v) - sum;
+        int aux = 0;
+        for(auto &curCost: curCosts) {
+            int curSum = min(curCost.s, diff - aux);
+
+            curCost.s -= curSum;
+            aux += curSum;
+            cur += curCost.f * curSum;
+            
+            if(aux == diff) break;
+        }
+    }
+
+    for(auto curCost: curCosts)
+        costs[curCost.f + 1] += curCost.s; 
+
+    dbg(v, costs, cur);
+
+    return cur;
 }
 
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    a.resize(n);
+    vi p(n - 1);
+    re(a, p);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    adj.resize(n);
     
-    ps(res);
-    memo.clear();
+    for(int i = 1; i < n; i++) {
+        adj.at(p.at(i - 1) - 1).pb(i);
+        adj.at(i).pb(p.at(i - 1) - 1);
+    }
+
+    map<int, int> costs;
+
+    ps(dfs(0, -1, costs));
+
+    a.clear();
+    adj.clear();
 }
 
 signed main()

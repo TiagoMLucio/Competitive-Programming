@@ -165,49 +165,81 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
+V<vi> adj;
+vi a, memo;
 
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
+int dp(int v, int p = -1) {
+    if(memo.at(v) != -1) return memo.at(v);
+    int ans = 0;
 
-    if (i >= sz(s) - 2) return 0;
+    dbg(v, p);
 
-    if (memo[{i, x}]) return memo[{i, x}];
+    for(auto u: adj.at(v)) {
+        if (u == p) continue;
 
-    int j = i;
+        dbg(v, u);
 
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
+        int sum1 = 0, sum2 = 0;
 
-        if (diff == 0) 
-            break;
+        sum1 += a.at(u - 1);
+        if (sz(adj.at(u)) == 1 && adj.at(u).at(0) == v) sum2 += a.at(u - 1);
+        for(auto w: adj.at(u)) {
+            if (w == v) continue;
+            sum1 += dp(w, u);
+            sum2 += max(a.at(u - 1), a.at(w - 1)) + 2 * min(a.at(u - 1), a.at(w - 1));
+            for(auto x: adj.at(w)) {
+                if (x == u) continue;
+                sum2 += dp(x, w);
+            }
+        }
+
+        ans += min(sum1, sum2);
+
+        dbg(v, u, sum1, sum2);
     }
 
-    if(diff != 0) return memo[{i, x}] = 0;
+    dbg(v, ans);
 
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
+    return (memo.at(v) = ans);
 }
+
 
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
+    def(int, n);
+    a.resize(n);
+    re(a);
 
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    int sum {0};
+    for(auto ai: a) sum += ai;
+
+    adj.resize(n + 1);
+    memo.resize(n + 1, -1);
     
-    ps(res);
+    for(int i = 0; i < n - 1; i++) {
+        def(int, x, y);
+        adj.at(x).pb(y);
+        adj.at(y).pb(x);
+    }
+
+
+    int start = 0;
+    for(int i = 1; i <= n; i++) {
+        if(sz(adj.at(i)) == 1) {
+            start = i;
+            break;  
+        }
+    }
+
+    dbg(sum, start);
+
+    int ans = dp(start);
+    if (n > 1) ans = min(ans, dp(adj.at(start)[0], start) + a.at(start - 1));
+
+    ps(sum + ans);
+
+    a.clear();
+    adj.clear();
     memo.clear();
 }
 

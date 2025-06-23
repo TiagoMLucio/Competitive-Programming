@@ -165,50 +165,35 @@ void setIO(str s = "") {
 }
 }  // namespace FileIO
 
-str s;
-map<ii, int> memo;
-
-int dp(int i, int x) {
-    dbg(i, x);
-    int mxSeq = 0, curSeq = 0, diff = 0;
-
-    if (i >= sz(s) - 2) return 0;
-
-    if (memo[{i, x}]) return memo[{i, x}];
-
-    int j = i;
-
-    for(; j < sz(s) - 1; j++) {
-        diff += s.at(j) == '(' ? 1 : -1;
-        if (s.at(j) == '(') {
-            curSeq++;
-            mxSeq = max(mxSeq, curSeq);
-        } else curSeq == 0;
-
-        if (diff == 0) 
-            break;
-    }
-
-    if(diff != 0) return memo[{i, x}] = 0;
-
-    return memo[{i, x}] = 1 + dp(j + 1, 1);    
-}
-
 void solve()
 {
-    re(s);
-    int res {0};
-    int curDiff = 1;
-
-    for(int i = 1; i < sz(s) - 1; i++) {
-        dbg(i);
-        if(curDiff > 0) res += dp(i, curDiff);
-        curDiff += s.at(i) == '(' ? 1 : -1;
-        dbg(i, res);
-    }
+    def(int, n);
+    vi v(n);
+    re(v);
     
-    ps(res);
-    memo.clear();
+    vi need;
+    for(int i = 1; i < n; i++)
+        if (v.at(i) < v.at(i - 1)) {
+            need.pb(v.at(i - 1) - v.at(i));
+            v.at(i) = v.at(i - 1);
+        }
+
+    dbg(v);
+
+    sor(need);
+
+    dbg(need);
+
+    int ans {0}, cur {0};
+
+    for(int i = 0; i < sz(need); i++) {
+        ans += (need.at(i) - cur) * (1 + sz(need) - i);
+        cur = need.at(i);
+    }
+
+    dbg(cur);
+
+    ps(ans);
 }
 
 signed main()
